@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    name: test and deploy serverless
+    name: deploy serverless
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

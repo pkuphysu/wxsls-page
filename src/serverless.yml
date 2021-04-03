@@ -10,3 +10,5 @@ inputs:
   zone: ap-shanghai-2
   bucket: sls-static
   protocol: https
+  env:
+    API_URL: ${output:${stage}:${app}:pkuphysu-wechat.apigw.url}
