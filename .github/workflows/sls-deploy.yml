@@ -1,0 +1,36 @@
+name: Deploy Serverless
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  deploy:
+    name: test and deploy serverless
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Determine env
+        id: env
+        if: ${{ ! contains(github.event.head_commit.message, '[skip-deploy]') }}
+        run: |
+          if [ $GITHUB_REF == 'refs/heads/master' ]; then
+            echo '::set-output name=stage::prod'
+          else
+            echo '::set-output name=stage::dev'
+          fi
+      - name: Install serverless
+        run: curl -o- -L https://slss.io/install | bash
+      - name: Deploy serverless website
+        timeout-minutes: 5
+        run: $HOME/.serverless/bin/sls deploy | grep -v -e Initializing -e Uploading -e Deploying -e NA
+        env:
+          STAGE: ${{ steps.env.outputs.stage }}
+          SERVERLESS_PLATFORM_VENDOR: tencent
+          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}

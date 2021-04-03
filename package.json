@@ -1,0 +1,14 @@
+{
+  "name": "wxsls-pages",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "prettier --check src",
+    "lint:fix": "prettier --write src",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^6.0.0",
+    "prettier": "^2.2.1"
+  }
+}

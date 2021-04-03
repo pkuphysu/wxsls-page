@@ -1,0 +1,28 @@
+name: Lint Code
+
+on:
+  push:
+
+jobs:
+  lint:
+    name: lint code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Node.js for use with actions
+        uses: actions/setup-node@v1.4.4
+        with:
+          version: 12.x
+      - uses: actions/cache@v2
+        with:
+          path: node_modules
+          id: cache
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-
+      - name: Install package
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Lint
+        run: npm run lint
