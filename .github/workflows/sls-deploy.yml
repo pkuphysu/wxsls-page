@@ -35,9 +35,14 @@ jobs:
         run: |
           if [ $GITHUB_REF == 'refs/heads/master' ]; then
             echo '::set-output name=stage::prod'
+            echo "::set-output name=appid::$APPID_PROD"
           else
             echo '::set-output name=stage::dev'
+            echo "::set-output name=appid::$APPID_DEV"
           fi
+        env:
+          APPID_PROD: ${{ secrets.APPID_PROD }}
+          APPID_DEV: ${{ secrets.APPID_DEV }}
       - name: Install serverless
         run: curl -o- -L https://slss.io/install | bash
       - name: Deploy serverless website
@@ -47,6 +52,7 @@ jobs:
           $HOME/.serverless/bin/sls deploy | grep -v -e Initializing -e Uploading -e Deploying -e NA
         env:
           STAGE: ${{ steps.env.outputs.stage }}
+          APPID: ${{ steps.env.outputs.appid }}
           SERVERLESS_PLATFORM_VENDOR: tencent
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}

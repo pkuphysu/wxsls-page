@@ -15,3 +15,4 @@ inputs:
   protocol: https
   env:
     API_URL: ${output:${stage}:${app}:pkuphysu-wechat.apigw.url}
+    APPID: ${env:APPID}
