@@ -5,6 +5,8 @@ name: pkuphysu-wechat-static
 inputs:
   src:
     src: ./
+    dist: ./dist
+    hook: npm run build
     index: index.html
   region: ap-shanghai
   zone: ap-shanghai-2

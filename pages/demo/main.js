@@ -6,3 +6,4 @@ document.querySelector('#app').innerHTML = `
 `
 
 console.log(getAuth())
+console.log(window.env.API_URL)

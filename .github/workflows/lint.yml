@@ -3,7 +3,8 @@ name: Lint Code
 on:
   push:
     paths:
-      - src/
+      - '**.js'
+      - '**.html'
 
 jobs:
   lint:
