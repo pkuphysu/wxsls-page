@@ -49,7 +49,7 @@ jobs:
         timeout-minutes: 5
         run: |
           set -o pipefail
-          $HOME/.serverless/bin/sls deploy | grep -v -e Initializing -e Uploading -e Deploying -e NA
+          $HOME/.serverless/bin/sls deploy | grep -v -e '中 ' -e 'ing ' -e NA
         env:
           STAGE: ${{ steps.env.outputs.stage }}
           APPID: ${{ steps.env.outputs.appid }}
