@@ -8,3 +8,4 @@ document.querySelector('#app').innerHTML = `
 console.log(ensureToken())
 console.log(window.env.API_URL)
 console.log(wxtoken)
+// setTimeout(() => alert('WeixinJSBridge' in window), 1000)

@@ -19,13 +19,17 @@ export function ensureToken () {
     console.log('Not authed. Redirecting to', redirectURL.href)
     location.replace(redirectURL.href)
   } else {
-    const authURL = new URL('/auth', window.env.API_URL)
+    const authURL = new URL('/auth/wechat', window.env.API_URL)
     authURL.searchParams.append('code', code)
     fetch(authURL.href)
       .then(res => res.json())
-      .then(({ token }) => {
-        wxtoken = token
-        localStorage.setItem('wxtoken', token)
+      .then((data) => {
+        if (!('token' in data)) {
+          alert(data)
+          return
+        }
+        wxtoken = data.token
+        localStorage.setItem('wxtoken', wxtoken)
       })
   }
 }
