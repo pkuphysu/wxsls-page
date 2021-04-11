@@ -1,13 +1,16 @@
 const { resolve } = require('path')
+const { createVuePlugin } = require('vite-plugin-vue2')
 
-const resolveIndex = dir => resolve(__dirname, dir, 'index.html')
+const resolvePages = dir => resolve(__dirname, 'pages', dir, 'index.html')
 
 module.exports = {
   build: {
     rollupOptions: {
       input: {
-        demo: resolveIndex('pages/demo')
+        demo: resolvePages('demo'),
+        x10n: resolvePages('x10n')
       }
     }
-  }
+  },
+  plugins: [createVuePlugin()]
 }
