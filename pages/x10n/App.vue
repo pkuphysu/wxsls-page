@@ -12,9 +12,6 @@
           <p>请注意写完题之后<em>不能回头修改</em>，<em>中途不能暂停或退出</em>，请一次性做完~</p>
         </div>
         <p>以下信息用于领奖，请如实填写</p>
-        <b-input-group prepend="学号" class="mb-2 mr-sm-2 mb-sm-0">
-          <b-form-input type="number" v-model.trim="result.stuId" />
-        </b-input-group>
         <b-input-group prepend="姓名" class="mb-2 mr-sm-2 mb-sm-0">
           <b-form-input v-model.trim="result.name"></b-form-input>
         </b-input-group>
@@ -92,20 +89,10 @@
 
 <script>
 import {BForm, BInputGroup, BAlert, BButton, BFormInput } from 'bootstrap-vue'
+import {requestApi} from '../../utils/api'
 
-const postResult = async (id, body) =>
-  await (
-    await fetch(`https://pkuphysu.top/test/api/x10n?id=${id}`, {
-      method: "POST",
-      body
-    })
-  ).json();
-const getResult = async id =>
-  await (
-    await fetch(`https://pkuphysu.top/test/api/x10n?id=${id}`, {
-      method: "GET"
-    })
-  ).json();
+const getResult = async () => await requestApi('GET', `/api/x10n`);
+const postResult = async (body) => await requestApi('POST', `/api/x10n`, body);
 
 export default {
   name: "App",
@@ -119,7 +106,7 @@ export default {
       show2: false,
       count: 0, //题目计数
       selected: -1, //记录当前选项
-      result: { stuId: "", name: "", wx: "", time: 0, question: [] }, //完成一题更新一遍time if(present_time - time > ...)则判定超时，自动下一题
+      result: { name: "", wx: "", time: 0, question: [] }, //完成一题更新一遍time if(present_time - time > ...)则判定超时，自动下一题
       start_time: 0, //开始时的时间 用于最后post所用时长
       present_time: 0, //现在的时间，一直计时
       ques: null, //题库
@@ -130,17 +117,17 @@ export default {
         {type:"warning",text:"该学号已经答题过了哦"},
         {type:"warning",text:"不能帮别人查询~"},
         {type:"warning",text:"看起来中途离开了，那就没有成绩了"},
-        {type:"warning",text:"比赛看起来不在线上"}
+        {type:"warning",text:"比赛看起来不在线"}
       ],
       msg:[]
     };
   },
   methods: {
     async start() {
-      if (this.result.stuId.length != 10 || !this.result.wx || !this.result.name)
+      if (!this.result.wx || !this.result.name)
         this.message(0);
       else {
-        let resp = await getResult(this.result.stuId);
+        let resp = await getResult();
         console.log(resp);
         if (!resp || resp.played === undefined) return this.message(6)
         if (resp.played) {
@@ -156,14 +143,7 @@ export default {
           this.show2 = false;
           return;
         }
-        //if (!resp.result.question.length < max_num) {
-      let res = await fetch("round1.json"); //获取json
-      let array = await res.json();
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      } //打乱数组
-      this.ques = array
+      this.ques = resp.questions
       this.message(1);
       this.show2 = true;
       this.show1 = false;
@@ -173,10 +153,9 @@ export default {
       }
     },
     nextques() {
-      let check = this.selected == this.ques[this.count].answer;
       this.result.question.push({
         number: this.ques[this.count].number,
-        answer: check
+        answer: this.selected
       });
       this.result.time = this.present_time; //传入时间
       this.selected = -1; //重置选项
@@ -191,7 +170,7 @@ export default {
     },
     post() {
       this.result.time -= this.start_time;
-      postResult(this.result.stuId, JSON.stringify(this.result));
+      postResult(JSON.stringify(this.result));
     },
     message(i){
       this.msg.push(this.msgs[i])
