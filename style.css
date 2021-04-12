@@ -1,0 +1,24 @@
+#qr-to-scan {
+  display: none;
+  text-align: center;
+}
+#qrcode {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+#qrcode img {
+  display: inline-block !important;
+}
+#done-scan {
+  background-color: aquamarine;
+  border-color: cadetblue;
+  border-style: solid;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1.5rem;
+  transition: all 1s ease-in-out;
+  outline: none;
+}
+#done-scan:hover {
+  background-color: darkturquoise;
+}
