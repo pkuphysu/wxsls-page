@@ -33,7 +33,7 @@ const isWechatClient = async () =>
 
 const redirectPage = () => {
   ['page', 'grant', 'code'].forEach(name => searchParams.delete(name))
-  location.replace(`${location.origin}/pages/${page}/${searchParams.toString()}`)
+  location.replace(`${location.origin}/pages/${page}/?${searchParams.toString()}`)
 }
 
 const setTokenFromData = (data) => {
