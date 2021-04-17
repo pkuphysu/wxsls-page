@@ -1,8 +1,8 @@
 export const requestApi = async (method, url, data) => {
   const fetchInit = {
     method,
-    mode: 'cors',
-    data,
+    cache: 'no-cache',
+    body: JSON.stringify(data),
     credentials: 'include'
   }
   const token = sessionStorage.getItem('token')
