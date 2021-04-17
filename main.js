@@ -33,7 +33,7 @@ const isWechatClient = async () =>
 
 const redirectPage = () => {
   ['page', 'grant', 'code'].forEach(name => searchParams.delete(name))
-  location.replace(`${location.origin}/pages/${page}${searchParams.toString()}`)
+  location.replace(`${location.origin}/pages/${page}/${searchParams.toString()}`)
 }
 
 const setTokenFromData = (data) => {
@@ -69,8 +69,8 @@ const main = async () => {
     return
   }
   if (code !== null) {
-    const toeknData = await requestApi('GET', `/auth/wechat?code=${code}`)
-    if (setTokenFromData(toeknData)) checkGrant() || redirectPage()
+    const tokenData = await requestApi('GET', `/auth/wechat?code=${code}`)
+    if (setTokenFromData(tokenData)) checkGrant() || redirectPage()
     return
   }
   if (await isWechatClient()) {
