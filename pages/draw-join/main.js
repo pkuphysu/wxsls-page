@@ -1,6 +1,6 @@
 import { requestApi } from '../../utils/api'
 
-window.onload(() => {
+window.onload = () => {
   const name = document.getElementById('name').value
   const el = document.getElementById('info-box')
 
@@ -20,4 +20,4 @@ window.onload(() => {
         el.innerText = '报名失败，可能是网络故障'
       })
   })
-})
+}
