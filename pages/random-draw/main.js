@@ -4,7 +4,6 @@ let handle = 0 // 记录真正是否循环
 let timeoutHandle = 0
 let initClick = null
 
-const ensureLoop = 20
 let loopNow = 0
 
 let allStudents = null
@@ -16,6 +15,8 @@ const pointList = []
 let studentNum = 0
 
 const urlParams = new URLSearchParams(window.location.search)
+const ensureLoop = urlParams.get('least') || 20
+const randomControl = urlParams.get('random') || 0.1
 const prizeType = urlParams.get('prize')
 const eventName = urlParams.get('event')
 const apiPoint = urlParams.get('api')
@@ -71,7 +72,7 @@ function randomSelect () {
   if (luckyDogs.length < names.length) { while (luckyDogs.includes(selected = naiveSelect())); }
 
   setText(selected)
-  if (loopNow++ > ensureLoop && Math.random() < 0.1 && handle !== 0) {
+  if (loopNow++ > ensureLoop && Math.random() < randomControl && handle !== 0) {
     loopNow = 0
     clearInterval(handle)
     handle = 0
