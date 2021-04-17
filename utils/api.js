@@ -2,8 +2,7 @@ export const requestApi = async (method, url, data) => {
   const fetchInit = {
     method,
     cache: 'no-cache',
-    body: JSON.stringify(data),
-    credentials: 'include'
+    body: JSON.stringify(data)
   }
   const token = sessionStorage.getItem('token')
   if (token) {
