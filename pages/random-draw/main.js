@@ -25,23 +25,28 @@ window.word = urlParams.get('word') || eventName
 window.textColor = 'white'
 const interval = 200
 
-// try to avoid cache
-requestApi('GET', `${apiPoint}${location.search}&${Math.floor(Date.now() / 1000)}`)
-  .then(function (data) {
-    allStudents = data
-    if (Array.isArray(allStudents)) {
-      pointsEnabled = false
-      names = allStudents
-    } else {
-      names = Object.keys(allStudents)
-      names.forEach((name) => {
-        const point = allStudents[name][prizeType] + 1
-        pointList.push(point)
-        totalPoints += point
-        studentNum += 1
-      })
-    }
-  })
+function main () {
+  requestApi('GET', `${apiPoint}${location.search}`)
+    .then(function (data) {
+      if (!data || !data.data) {
+        setText('网络故障？')
+        return
+      }
+      allStudents = data.data
+      if (Array.isArray(allStudents)) {
+        pointsEnabled = false
+        names = allStudents
+      } else {
+        names = Object.keys(allStudents)
+        names.forEach((name) => {
+          const point = allStudents[name][prizeType] + 1
+          pointList.push(point)
+          totalPoints += point
+          studentNum += 1
+        })
+      }
+    })
+}
 
 function setText (s) {
   window.clearWord()
@@ -105,3 +110,5 @@ document.getElementById('play-zone').addEventListener('click', function () {
     handle = setInterval(randomSelect, interval)
   }
 })
+
+main()
