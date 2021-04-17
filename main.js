@@ -28,7 +28,7 @@ const isWechatClient = async () =>
     new Promise(resolve => document.addEventListener(
       'WeixinJSBridgeReady', () => resolve(true), { once: true }
     )),
-    new Promise(resolve => setTimeout(() => resolve(false), 1000))
+    new Promise(resolve => setTimeout(() => resolve(false), 40))
   ])
 
 const redirectPage = () => {
