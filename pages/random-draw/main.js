@@ -22,7 +22,7 @@ const apiPoint = urlParams.get('api')
 // initial word should be as long as possible
 // to get enough particles
 window.word = urlParams.get('word') || eventName
-
+window.textColor = 'white'
 const interval = 200
 
 // try to avoid cache
