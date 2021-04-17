@@ -1,10 +1,10 @@
 import { requestApi } from '../../utils/api'
 
 window.onload = () => {
-  const name = document.getElementById('name').value
   const el = document.getElementById('info-box')
 
   document.getElementById('join-btn').addEventListener('click', () => {
+    const name = document.getElementById('name').value
     requestApi('POST', '/api/random-draw/join', { name })
       .then((message) => {
         if (message.status === 200) {
