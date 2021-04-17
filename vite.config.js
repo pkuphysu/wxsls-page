@@ -4,7 +4,7 @@ const pages = require('./pages/index.json')
 
 const input = { index: resolve(__dirname, 'index.html') }
 for (const page of pages) {
-  input.page = resolve(__dirname, join('pages', page, 'index.html'))
+  input[page] = resolve(__dirname, join('pages', page, 'index.html'))
 }
 
 module.exports = {
