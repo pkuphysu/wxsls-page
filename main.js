@@ -70,7 +70,7 @@ const main = async () => {
   }
   if (code !== null) {
     const tokenData = await requestApi('GET', `/auth/wechat?code=${code}`)
-    if (setTokenFromData(tokenData)) checkGrant() || redirectPage()
+    if (setTokenFromData(tokenData)) await checkGrant() || redirectPage()
     return
   }
   if (await isWechatClient()) {
