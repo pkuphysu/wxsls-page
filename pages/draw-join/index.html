@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@2.0.3/build/forms-min.css"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@2.0.3/build/buttons-min.css"
+      crossorigin="anonymous"
+    />
+    <script src="/env.js"></script>
+    <script src="./main.js" type="module"></script>
+    <title>参加抽奖</title>
+  </head>
+  <body>
+    <div style="margin: auto; max-width: 300px; text-align: center">
+      <p>参加抽奖！</p>
+      <p id="info-box" style="color: darkred">&nbsp;</p>
+      <form class="pure-form">
+        <input
+          style="margin: auto"
+          id="name"
+          type="text"
+          placeholder="您的姓名"
+        />
+      </form>
+      <br />
+      <button
+        id="join-btn"
+        type="submit"
+        class="pure-button pure-button-primary"
+      >
+        报名
+      </button>
+    </div>
+  </body>
+</html>

@@ -1,14 +1,31 @@
 {
-  "name": "wxsls-pages",
-  "version": "1.0.0",
+  "name": "pkuphysu-wechat",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "lint": "prettier --check src",
-    "lint:fix": "prettier --write src",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint": "eslint . --ext .js,.vue && htmlhint --nocolor **/*.html",
+    "lint:fix": "eslint . --ext .js,.vue --fix",
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@html-eslint/eslint-plugin": "^0.8.0",
+    "@html-eslint/parser": "^0.8.0",
+    "eslint": "^7.24.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-vue": "^7.9.0",
+    "htmlhint": "^0.14.2",
     "husky": "^6.0.0",
-    "prettier": "^2.2.1"
+    "vite": "^2.0.5",
+    "vite-plugin-vue2": "^1.4.3"
+  },
+  "dependencies": {
+    "bootstrap-vue": "^2.21.2",
+    "bootswatch": "^4.6.0"
   }
 }

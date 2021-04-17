@@ -5,8 +5,14 @@ name: pkuphysu-wechat-static
 inputs:
   src:
     src: ./
+    dist: ./dist
+    hook: npm run build
     index: index.html
   region: ap-shanghai
   zone: ap-shanghai-2
-  bucket: sls-static
+  bucket: pkuphysu-${env:STAGE}
+  replace: true
   protocol: https
+  env:
+    API_URL: ${output:${stage}:${app}:pkuphysu-wechat.apigw.url}
+    APPID: ${env:APPID}
