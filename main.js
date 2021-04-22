@@ -13,7 +13,7 @@ const redirectWechatOAuth = () => {
     appid: window.env.APPID,
     redirect_uri: location.href,
     response_type: 'code',
-    scope: 'snsapi_base'
+    scope: 'snsapi_userinfo'
   }
   for (const paramKey in redirectParams) {
     redirectURL.searchParams.append(paramKey, redirectParams[paramKey])
@@ -42,7 +42,7 @@ const setTokenFromData = (data) => {
     alert(data.errid)
     return false
   }
-  sessionStorage.setItem('token', token)
+  localStorage.setItem('token', token)
   return token
 }
 
@@ -56,17 +56,25 @@ const checkGrant = async () => {
   return true
 }
 
+const checkToken = async () => {
+  const checkData = await requestApi('GET', '/auth/openid')
+  return checkData.status === 200
+}
+
 const main = async () => {
   if (!tcode && !validPages.includes(page)) {
     alert('跳转参数不合法')
     return
   }
 
-  const token = sessionStorage.getItem('token')
+  const token = localStorage.getItem('token')
 
   if (token !== null) {
-    await checkGrant() || redirectPage()
-    return
+    if (await checkToken()) {
+      await checkGrant() || redirectPage()
+      return
+    }
+    localStorage.removeItem('token')
   }
   if (code !== null) {
     const tokenData = await requestApi('GET', `/auth/wechat?code=${code}`)
