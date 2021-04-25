@@ -5,7 +5,7 @@ export const requestApi = async (method, url, data) => {
     cache: 'no-cache',
     body: JSON.stringify(data)
   }
-  const token = sessionStorage.getItem('token')
+  const token = localStorage.getItem('token')
   if (token) {
     fetchInit.headers.append('Authorization', 'Basic ' + token)
   }

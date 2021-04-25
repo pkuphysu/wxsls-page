@@ -2,9 +2,8 @@ name: Lint Code
 
 on:
   push:
-    paths:
-      - '**.js'
-      - '**.html'
+    paths-ignore:
+      - "**.md"
 
 jobs:
   lint:
@@ -26,6 +25,6 @@ jobs:
             node-
       - name: Install package
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm i
       - name: Lint
         run: npm run lint
