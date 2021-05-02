@@ -5,7 +5,7 @@
       align="center"
     >
       <b-form
-        v-if="show1"
+        v-if="screen === 'welcome'"
         class="col-10"
       >
         <h2>数量级估算大赛</h2>
@@ -27,13 +27,13 @@
           prepend="姓名"
           class="mb-2 mr-sm-2 mb-sm-0"
         >
-          <b-form-input v-model.trim="result.name" />
+          <b-form-input v-model.trim="localResult.name" />
         </b-input-group>
         <b-input-group
           prepend="微信号"
           class="mb-2 mr-sm-2 mb-sm-0"
         >
-          <b-form-input v-model.trim="result.wx" />
+          <b-form-input v-model.trim="localResult.wx" />
         </b-input-group>
         <br>
         <p style="font-size: small;">
@@ -51,7 +51,7 @@
       </b-form>
     </div>
     <div class="container col-10">
-      <div v-if="show2">
+      <div v-if="screen === 'main'">
         <div class="row">
           <div class="col-md-11">
             <b-progress
@@ -60,7 +60,7 @@
             />
           </div>
           <div class="col-md-1">
-            TIME:{{ (interval-(present_time-result.time))/1000 }}
+            TIME:{{ remainingTime }}
           </div>
         </div>
         <br>
@@ -102,22 +102,22 @@
         </div>
       </div>
       <div
-        v-if="!(show1||show2)"
+        v-if="screen === 'result' && serverResult"
         id="result"
         class="text-center"
       >
-        <h2>{{ result.name }}的答题结果</h2>
+        <h2>{{ serverResult.name }}的答题结果</h2>
         <p>
-          用时：{{ result.time / 1000 }}s，
-          答对 {{ result.question.filter(q=>q.answer).length }} 题
+          用时：{{ serverResult.time }}s，
+          答对 {{ serverResult.questions.filter(q=>q.answer).length }} 题
         </p>
         <p>
           你真是数量级估算带师啊。截个图更方便对答案哦~
           看看你和小伙伴都答对了哪些题呢？（第二个数字表示题目唯一编号）
         </p>
         <span
-          v-for="(q,i) in result.question"
-          :key="q.number"
+          v-for="(q,i) in serverResult.questions"
+          :key="`badge${q.number}`"
           class="badge badge-pill p-2 m-1"
           :class="{
             'badge-success': q.answer,
@@ -154,50 +154,37 @@
 </template>
 
 <script>
-import { BForm, BInputGroup, BAlert, BButton, BFormInput } from 'bootstrap-vue'
+import { BForm, BInputGroup, BAlert, BButton, BFormInput, BProgress } from 'bootstrap-vue'
 import { requestApi } from '../../utils/api'
 
 const getResult = async () => await requestApi('GET', '/api/x10n')
 const postResult = async (body) => await requestApi('POST', '/api/x10n', body)
+const msgs = {
+  infoInvalid: { type: 'warning', text: '请至少填一个像样的信息' },
+  start: { type: 'success', text: '答题开始！' },
+  end: { type: 'success', text: '答题结束啦！' },
+  done: { type: 'warning', text: '您已经答题过了哦' },
+  notComplete: { type: 'warning', text: '看起来中途离开了，那就没有成绩了' },
+  offline: { type: 'warning', text: '活动和您的设备至少有一个不在线' }
+}
+const timeInSec = 3
 
 export default {
   name: 'App',
-  components: { BForm, BInputGroup, BAlert, BButton, BFormInput },
+  components: { BForm, BInputGroup, BAlert, BButton, BFormInput, BProgress },
   data () {
     return {
-      interval: 30000,
-      max_num: 30,
+      remainingTime: timeInSec,
+      max_num: 10,
       option: ['A', 'B', 'C', 'D'],
-      show1: true,
-      show2: false,
+      screen: 'welcome',
       count: 0, // 题目计数
       selected: -1, // 记录当前选项
-      result: { name: '', wx: '', time: 0, question: [] }, // 完成一题更新一遍time if(present_time - time > ...)则判定超时，自动下一题
-      start_time: 0, // 开始时的时间 用于最后post所用时长
-      present_time: 0, // 现在的时间，一直计时
+      localResult: { name: '', wx: '', questions: [] },
+      serverResult: null,
       ques: null, // 题库
-      msgs: [
-        { type: 'warning', text: '请至少填一个像样的信息' },
-        { type: 'success', text: '答题开始！' },
-        { type: 'success', text: '答题结束啦！' },
-        { type: 'warning', text: '该学号已经答题过了哦' },
-        { type: 'warning', text: '不能帮别人查询~' },
-        { type: 'warning', text: '看起来中途离开了，那就没有成绩了' },
-        { type: 'warning', text: '比赛看起来不在线' }
-      ],
+      intervalHandle: null,
       msg: []
-    }
-  },
-  watch: {
-    count () {
-      if (this.count >= this.max_num) {
-        this.show2 = false
-        this.message(2)
-        this.post()
-      }
-    },
-    present_time () {
-      if (this.present_time - this.result.time > this.interval) this.nextques()
     }
   },
   created: () => console.log('大佬请认真答题'),
@@ -206,54 +193,51 @@ export default {
   },
   methods: {
     async start () {
-      if (!this.result.wx || !this.result.name) { this.message(0) } else {
+      if (!this.localResult.wx || !this.localResult.name) {
+        this.message('infoInvalid')
+      } else {
         const resp = await getResult()
         console.log(resp)
-        if (!resp || resp.played === undefined) return this.message(6)
+        if (!resp || resp.played === undefined) return this.message('offline')
         if (resp.played) {
-          const result = JSON.parse(resp.result)
-          if (result === null) return this.message(5)
-          if (result.wx !== this.result.wx || result.name !== this.result.name) {
-            this.message(4)
-            return
-          }
-          this.result = result
-          this.message(3)
-          this.show1 = false
-          this.show2 = false
+          const serverResult = resp.result
+          if (!serverResult) return this.message('notComplete')
+          this.serverResult = serverResult
+          this.message('done')
+          this.screen = 'result'
           return
         }
         this.ques = resp.questions
-        this.message(1)
-        this.show2 = true
-        this.show1 = false
-        this.result.time = Date.parse(new Date()) // 记录时间
-        this.start_time = this.result.time
-        this.countdown() // 开始计时
+        this.message('start')
+        this.screen = 'main'
+        this.intervalHandle = setInterval(() => this.countdown(), 1000)
       }
     },
     nextques () {
-      this.result.question.push({
+      this.localResult.questions.push({
         number: this.ques[this.count].number,
         answer: this.selected
       })
-      this.result.time = this.present_time // 传入时间
+      this.remainingTime = timeInSec
       this.selected = -1 // 重置选项
-      this.count++
+      if (this.count + 1 >= this.max_num) {
+        this.message('end')
+        this.post()
+        clearInterval(this.intervalHandle)
+      } else this.count++
     },
     countdown () {
-      this.present_time = Date.parse(new Date())
-      setTimeout(() => {
-        // console.log(that.present_time)
-        if (this.count < this.max_num) this.countdown() // 递归
-      }, 1000)
+      if (this.count < this.max_num) {
+        this.remainingTime--
+        if (this.remainingTime === 0) this.nextques()
+      }
     },
-    post () {
-      this.result.time -= this.start_time
-      postResult(JSON.stringify(this.result))
+    async post () {
+      this.serverResult = (await postResult({ result: this.localResult })).result
+      this.screen = 'result'
     },
     message (i) {
-      this.msg.push(this.msgs[i])
+      this.msg.push(msgs[i])
       setTimeout(() => {
         this.msg = []
       }, 5000)
