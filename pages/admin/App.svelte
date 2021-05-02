@@ -19,6 +19,13 @@
     await updateInfo()
   }
 
+  const migrate = async () => {
+    const todo = await requestApi('GET', '/db-tables/migrate')
+    if (!confirm(todo.migration)) return
+    await requestApi('POST', '/db-tables/migrate')
+    await updateInfo()
+  }
+
   const downloadData = async (tableName) => {
     const data = await requestApi('GET', `/db-tables/${tableName}`)
     if (data.status !== 200) return
@@ -59,6 +66,7 @@
     No table to show...
   {:else}
     <button on:click={createAll}>Create All</button>
+    <button on:click={migrate}>Migrate</button>
     <div class="db-tables">
       {#each Object.keys(tablesInfo) as tableName}
         <div class="db-table">
