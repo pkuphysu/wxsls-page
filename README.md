@@ -7,6 +7,8 @@
 
 ## Development
 
+更多开发相关详见[CONTRIBUTING.md](CONTRIBUTING.md)
+
 ### `npm install`
 
 不用多说了吧。husky 会自动安装好。
@@ -39,8 +41,16 @@ window.env = {
 
 ### Commands
 
-见 [`package.json`](package.json)
-
+```sh
+# 本地开发
+npm run dev
+# 生成静态网页
+npm run build
+# 运行代码检查
+npm run lint
+# 运行代码检查并修复
+npm run lint:fix
+```
 
 ## Deploy
 
