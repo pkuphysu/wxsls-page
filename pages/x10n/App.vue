@@ -167,7 +167,7 @@ const msgs = {
   notComplete: { type: 'warning', text: '看起来中途离开了，那就没有成绩了' },
   offline: { type: 'warning', text: '活动和您的设备至少有一个不在线' }
 }
-const timeInSec = 3
+const timeInSec = 30
 
 export default {
   name: 'App',
