@@ -9,20 +9,17 @@
         class="col-10"
       >
         <h2>数量级估算大赛</h2>
-        <p style="font-size: x-small;">
-          见到此页面即可开始答题
-        </p>
         <div
           class="text-left"
           style="font-size: small"
         >
           <p>
-            这次比赛是为了给大家的五一假期增加快乐，题目可能有失严谨，请大家见谅~
-            如果遇到了其他问题，请咨询<a href="mailto://wulixynl@163.com">wulixynl@163.com</a>
+            这次比赛是为了给大家的学习生活增加快乐，题目可能有失严谨，请大家见谅~
+            如果遇到了其他问题，请咨询<a href="mailto://1376156442@qq.com">1376156442@qq.com</a>
           </p>
           <p>请注意写完题之后<em>不能回头修改</em>，<em>中途不能暂停或退出</em>，请一次性做完~</p>
         </div>
-        <p>以下信息用于领奖，请如实填写</p>
+        <p>请确认是<strong>北大校内同学</strong>，并如实填写以下用于领奖的信息</p>
         <b-input-group
           prepend="姓名"
           class="mb-2 mr-sm-2 mb-sm-0"
