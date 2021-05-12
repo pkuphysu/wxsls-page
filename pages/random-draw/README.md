@@ -9,6 +9,8 @@
 
 由于不同活动有各种奇奇怪怪的甲方要求，代码里残留了各种逻辑。
 
+而且和 vite 结合需要把这些 static 文件甩进 `public/` 下，很不优雅，and will be included in every build.
+
 Landmines and dragons!
 
 
