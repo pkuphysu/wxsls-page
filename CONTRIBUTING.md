@@ -31,7 +31,7 @@
 工作流大致如下：
 
 1. 从 dev 新建 Git 分支
-2. 在 `pages` 下新建文件夹，模仿已有的功能写好业务代码。然后修改 `pages/index.json`，加上新建的模块名称。
+2. 在 `pages` 下新建文件夹，模仿已有的功能写好业务代码。然后修改 `public/pages.json`，加上新建的模块名称。
 4. 向 dev 分支提起 PR
 5. review 通过后，根据 commit 是否混乱，决定是 create merge commit 还是 squash merge
 6. 该分支历史使命已经结束，删除该分支以保持整洁
@@ -39,7 +39,7 @@
 8. 线上环境测试，汇总问题后，从 dev 新建分支进行修改
 9. 重复上一步，直至测试通过
 10. 通过 create merge commit 的方式 merge dev into master
-11. 功能使命结束，在 dev 上则将 `pages/index.json` 回复原样即可，适时如上 merge into master
+11. 功能使命结束，在 dev 上则将 `public/pages.json` 回复原样即可，适时如上 merge into master
 
 ## 发布
 

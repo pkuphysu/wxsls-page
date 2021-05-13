@@ -2,7 +2,7 @@ const { resolve, join } = require('path')
 const { defineConfig } = require('vite')
 const svelte = require('@sveltejs/vite-plugin-svelte')
 const { createVuePlugin } = require('vite-plugin-vue2')
-const pages = require('./pages/index.json')
+const pages = require('./public/pages.json')
 
 const input = { index: resolve(__dirname, 'index.html') }
 for (const page of pages) {

@@ -1,11 +1,19 @@
 import { requestApi } from './utils/api'
-import validPages from './pages/index.json'
 import './style.css'
 
 const searchParams = new URLSearchParams(location.search)
 const page = searchParams.get('page')
 const tcode = searchParams.get('grant')
 const code = searchParams.get('code')
+
+const checkRedirectPage = async () => {
+  const validPages = await fetch(`/pages.json?${+new Date()}`).then(resp => resp.json())
+  if (!tcode && !validPages.includes(page)) {
+    alert('跳转参数不合法或页面不在线')
+    return false
+  }
+  return true
+}
 
 const redirectWechatOAuth = () => {
   const redirectURL = new URL('https://open.weixin.qq.com/connect/oauth2/authorize')
@@ -62,10 +70,7 @@ const checkToken = async () => {
 }
 
 const main = async () => {
-  if (!tcode && !validPages.includes(page)) {
-    alert('跳转参数不合法')
-    return
-  }
+  if (!await checkRedirectPage()) return
 
   const token = localStorage.getItem('token')
 
