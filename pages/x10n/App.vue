@@ -27,10 +27,10 @@
           <b-form-input v-model.trim="localResult.name" />
         </b-input-group>
         <b-input-group
-          prepend="微信号"
+          prepend="学号"
           class="mb-2 mr-sm-2 mb-sm-0"
         >
-          <b-form-input v-model.trim="localResult.wx" />
+          <b-form-input v-model.trim="localResult.stuID" />
         </b-input-group>
         <br>
         <p style="font-size: small;">
@@ -177,7 +177,7 @@ export default {
       screen: 'welcome',
       count: 0, // 题目计数
       selected: -1, // 记录当前选项
-      localResult: { name: '', wx: '', questions: [] },
+      localResult: { name: '', stuID: '', questions: [] },
       serverResult: null,
       ques: null, // 题库
       intervalHandle: null,
@@ -190,7 +190,7 @@ export default {
   },
   methods: {
     async start () {
-      if (!this.localResult.wx || !this.localResult.name) {
+      if (!this.localResult.stuID || !this.localResult.name) {
         this.message('infoInvalid')
       } else {
         const resp = await getResult()
