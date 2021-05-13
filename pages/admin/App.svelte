@@ -2,6 +2,7 @@
   import { requestApi } from '../../utils/api'
 
   let tablesInfo = {}
+  let infoError = null
   let fileInput
   const fileAction = {
     method: 'PATCH',
@@ -12,7 +13,11 @@
 
   const updateInfo = async () => {
     const data = await requestApi('GET', '/db-tables')
-    if (data.status !== 200) return
+    if (data.status !== 200) {
+      infoError = JSON.stringify(data)
+      return
+    }
+    infoError = null
     tablesInfo = data.tables
   }
 
@@ -64,11 +69,17 @@
 </script>
 
 <div>
+  <button on:click={createAll}>Create All</button>
+  <button on:click={migrate}>Migrate</button>
   {#if Object.keys(tablesInfo).length === 0}
-    No table to show...
+    <div>
+      {#if infoError}
+        {infoError}
+      {:else}
+        No table to show...
+      {/if}
+    </div>
   {:else}
-    <button on:click={createAll}>Create All</button>
-    <button on:click={migrate}>Migrate</button>
     <div class="db-tables">
       {#each Object.keys(tablesInfo) as tableName}
         <div class="db-table">
