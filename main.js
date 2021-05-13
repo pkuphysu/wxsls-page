@@ -41,6 +41,7 @@ const isWechatClient = async () =>
 
 const redirectPage = () => {
   ['page', 'grant', 'code'].forEach(name => searchParams.delete(name))
+  searchParams.append('time', +new Date())
   location.replace(`${location.origin}/pages/${page}/?${searchParams.toString()}`)
 }
 
