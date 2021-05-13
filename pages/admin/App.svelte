@@ -8,6 +8,8 @@
     url: ''
   }
 
+  const confirmAction = (action, name) => confirm(`Are you sure to ${action} ${name}`)
+
   const updateInfo = async () => {
     const data = await requestApi('GET', '/db-tables')
     if (data.status !== 200) return
@@ -81,7 +83,8 @@
           <button on:click={() => downloadData(tableName)}>Download</button>
           <button
             on:click={async () => {
-              fileAction.method = 'PUT'
+              if (!confirmAction('patch', tableName)) return
+              fileAction.method = 'PATCH'
               fileAction.url = `/db-tables/${tableName}`
               fileInput.click()
             }}
@@ -90,7 +93,8 @@
           </button>
           <button
             on:click={async () => {
-              fileAction.method = 'PATCH'
+              if (!confirmAction('overwrite', tableName)) return
+              fileAction.method = 'PUT'
               fileAction.url = `/db-tables/${tableName}`
               fileInput.click()
             }}
@@ -99,6 +103,7 @@
           </button>
           <button
             on:click={async () => {
+              if (!confirmAction('delete', tableName)) return
               await requestApi('DELETE', `/db-tables/${tableName}`)
               await updateInfo()
             }}
