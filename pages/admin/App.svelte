@@ -2,15 +2,22 @@
   import { requestApi } from '../../utils/api'
 
   let tablesInfo = {}
+  let infoError = null
   let fileInput
   const fileAction = {
     method: 'PATCH',
     url: ''
   }
 
+  const confirmAction = (action, name) => confirm(`Are you sure to ${action} ${name}`)
+
   const updateInfo = async () => {
     const data = await requestApi('GET', '/db-tables')
-    if (data.status !== 200) return
+    if (data.status !== 200) {
+      infoError = JSON.stringify(data)
+      return
+    }
+    infoError = null
     tablesInfo = data.tables
   }
 
@@ -62,11 +69,17 @@
 </script>
 
 <div>
+  <button on:click={createAll}>Create All</button>
+  <button on:click={migrate}>Migrate</button>
   {#if Object.keys(tablesInfo).length === 0}
-    No table to show...
+    <div>
+      {#if infoError}
+        {infoError}
+      {:else}
+        No table to show...
+      {/if}
+    </div>
   {:else}
-    <button on:click={createAll}>Create All</button>
-    <button on:click={migrate}>Migrate</button>
     <div class="db-tables">
       {#each Object.keys(tablesInfo) as tableName}
         <div class="db-table">
@@ -81,7 +94,8 @@
           <button on:click={() => downloadData(tableName)}>Download</button>
           <button
             on:click={async () => {
-              fileAction.method = 'PUT'
+              if (!confirmAction('patch', tableName)) return
+              fileAction.method = 'PATCH'
               fileAction.url = `/db-tables/${tableName}`
               fileInput.click()
             }}
@@ -90,7 +104,8 @@
           </button>
           <button
             on:click={async () => {
-              fileAction.method = 'PATCH'
+              if (!confirmAction('overwrite', tableName)) return
+              fileAction.method = 'PUT'
               fileAction.url = `/db-tables/${tableName}`
               fileInput.click()
             }}
@@ -99,6 +114,7 @@
           </button>
           <button
             on:click={async () => {
+              if (!confirmAction('delete', tableName)) return
               await requestApi('DELETE', `/db-tables/${tableName}`)
               await updateInfo()
             }}

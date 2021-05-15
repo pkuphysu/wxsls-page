@@ -172,7 +172,7 @@ export default {
   data () {
     return {
       remainingTime: timeInSec,
-      max_num: 10,
+      max_num: 30,
       option: ['A', 'B', 'C', 'D'],
       screen: 'welcome',
       count: 0, // 题目计数
