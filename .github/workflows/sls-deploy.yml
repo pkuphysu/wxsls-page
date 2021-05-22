@@ -49,10 +49,11 @@ jobs:
         timeout-minutes: 5
         run: |
           set -o pipefail
-          $HOME/.serverless/bin/sls deploy | grep -v -e '中 ' -e 'ing ' -e NA
+          $HOME/.serverless/bin/sls deploy | grep -v -e '中 ' -e '化 ' -e NA
         env:
           STAGE: ${{ steps.env.outputs.stage }}
           APPID: ${{ steps.env.outputs.appid }}
           SERVERLESS_PLATFORM_VENDOR: tencent
+          SLS_GEO_LOCATION: cn
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}

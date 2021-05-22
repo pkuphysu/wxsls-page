@@ -14,5 +14,5 @@ inputs:
   replace: true
   protocol: https
   env:
-    API_URL: ${output:${stage}:${app}:pkuphysu-wechat.apigw.url}
+    API_URL: ${output:${stage}:${app}:pkuphysu-wechat.triggers[0].urls[0]}
     APPID: ${env:APPID}
