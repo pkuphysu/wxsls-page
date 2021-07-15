@@ -14,7 +14,22 @@
 Landmines and dragons!
 
 
-### Required Params
+### 发布
+#### Required Parameters
 
 - `api`
 - `event`
+
+比如 `ROOT_URL/?page=random-draw&api=/api/random-draw/all&event=抽奖`
+
+#### Optional Parameters
+
+懒得写了，看 `./main.js` 里一堆 `urlParams.get` 吧。
+
+#### 其他
+
+配合参与抽奖页面（`draw-join`）食用
+
+URL 填完了甩给人家就好。但是要求在目标浏览器上经过微信认证登录，且后台身份是管理员。
+
+注意在抽奖开始前一定要刷新页面，或者在所有人报名完成后再打开。
