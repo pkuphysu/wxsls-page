@@ -1,4 +1,6 @@
 export const requestApi = async (method, url, data) => {
+  const API_URL = window.env.API_DETAILS[0].urls[0]
+
   const fetchInit = {
     headers: new Headers(),
     method,
@@ -12,7 +14,7 @@ export const requestApi = async (method, url, data) => {
   if (data) {
     fetchInit.headers.append('Content-Type', 'application/json')
   }
-  return fetch(new URL(url, window.env.API_URL), fetchInit)
+  return fetch(new URL(url, API_URL), fetchInit)
     .then(resp => resp.json())
     .catch(err => alert(err))
 }
