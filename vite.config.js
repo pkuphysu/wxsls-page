@@ -1,6 +1,6 @@
 const { resolve, join } = require('path')
 const { defineConfig } = require('vite')
-const svelte = require('@sveltejs/vite-plugin-svelte')
+const { svelte } = require('@sveltejs/vite-plugin-svelte')
 const { createVuePlugin } = require('vite-plugin-vue2')
 const pages = require('./public/pages.json')
 

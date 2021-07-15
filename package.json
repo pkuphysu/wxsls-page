@@ -25,7 +25,8 @@
     "husky": "^6.0.0",
     "svelte-hmr": "^0.14.5",
     "vite": "^2.4.2",
-    "vite-plugin-vue2": "^1.7.3"
+    "vite-plugin-vue2": "^1.7.3",
+    "vue-template-compiler": "^2.6.14"
   },
   "dependencies": {
     "bootstrap-vue": "^2.21.2",
