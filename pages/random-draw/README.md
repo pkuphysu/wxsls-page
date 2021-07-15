@@ -1,4 +1,4 @@
-## 抽奖前端
+# 抽奖前端
 
 说真的，看这个模板不爽很久了。发现有更好的能换的话请务必马上立刻换掉它。
 
@@ -14,22 +14,37 @@
 Landmines and dragons!
 
 
-### 发布
-#### Required Parameters
-
-- `api`
-- `event`
-
+## 发布
+### Required Parameters
 比如 `ROOT_URL/?page=random-draw&api=/api/random-draw/all&event=抽奖`
+#### `api`
 
-#### Optional Parameters
+获取抽奖信息的 API 地址。如果是配合 `draw-join` 的，就是 `/api/random-draw/all`
 
-懒得写了，看 `./main.js` 里一堆 `urlParams.get` 吧。
+#### `event`
 
-#### 其他
+抽奖间隙显示的文本，以及默认为未开始时显示的标题
+
+
+### Optional Parameters
+
+具体看 `./main.js` 里一堆 `urlParams.get`
+
+#### `least`
+最少显示多少人之后才会有中奖
+#### `random`
+达到最小显示人数后，每次显示人名后生成随机数，小于 `random` 则停止。可以理解为 `random` 越小停止越慢。
+#### `prize`
+当抽奖分一二三等奖项时（即使用的 API 不是 `draw-join`），抽取哪个奖。根据后台的格式做调整，一般 0 表示一等奖，以此类推。
+##### `word`
+未开始时显示的标题
+
+**注意：** 未开始时显示的标题应当（在正常显示的情况下）尽可能长，否则文字会显示不正常。
+
+### 其他
 
 配合参与抽奖页面（`draw-join`）食用
 
-URL 填完了甩给人家就好。但是要求在目标浏览器上经过微信认证登录，且后台身份是管理员。
+URL 填完了甩给人家就好。但是要求在目标浏览器上经过微信认证登录，且在 wxsls-pyfn 中所列的 `MASTER_IDS` 中。
 
 注意在抽奖开始前一定要刷新页面，或者在所有人报名完成后再打开。
