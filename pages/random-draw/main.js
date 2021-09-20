@@ -20,33 +20,36 @@ const randomControl = urlParams.get('random') || 0.1
 const prizeType = urlParams.get('prize')
 const eventName = urlParams.get('event')
 const apiPoint = urlParams.get('api')
+const method = urlParams.get('method') || 'tradition'
+// tradition 原有模式 click_control 用点击控制停止
+
 // initial word should be as long as possible
 // to get enough particles
 window.word = urlParams.get('word') || eventName
 window.textColor = 'white'
 const interval = 200
+let selected = '人数不足'
 
 function main () {
-  requestApi('GET', `${apiPoint}${location.search}`)
-    .then(function (data) {
-      if (!data || !data.data) {
-        setText('网络故障？')
-        return
-      }
-      allStudents = data.data
-      if (Array.isArray(allStudents)) {
-        pointsEnabled = false
-        names = allStudents
-      } else {
-        names = Object.keys(allStudents)
-        names.forEach((name) => {
-          const point = allStudents[name][prizeType] + 1
-          pointList.push(point)
-          totalPoints += point
-          studentNum += 1
-        })
-      }
-    })
+  requestApi('GET', `${apiPoint}${location.search}`).then(function (data) {
+    if (!data || !data.data) {
+      setText('网络故障？')
+      return
+    }
+    allStudents = data.data
+    if (Array.isArray(allStudents)) {
+      pointsEnabled = false
+      names = allStudents
+    } else {
+      names = Object.keys(allStudents)
+      names.forEach((name) => {
+        const point = allStudents[name][prizeType] + 1
+        pointList.push(point)
+        totalPoints += point
+        studentNum += 1
+      })
+    }
+  })
 }
 
 function setText (s) {
@@ -68,16 +71,20 @@ function naiveSelect () {
 }
 
 function randomSelect () {
-  let selected = '人数不足'
-  if (luckyDogs.length < names.length) { while (luckyDogs.includes(selected = naiveSelect())); }
+  selected = '人数不足'
+  if (luckyDogs.length < names.length) {
+    while (luckyDogs.includes((selected = naiveSelect())));
+  }
 
   setText(selected)
-  if (loopNow++ > ensureLoop && Math.random() < randomControl && handle !== 0) {
+  if (loopNow++ > ensureLoop && Math.random() < randomControl && handle !== 0 && method === 'tradition') {
     loopNow = 0
     clearInterval(handle)
     handle = 0
     luckyDogs.push(selected)
-    setTimeout(() => { window.textColor = '#1d73c9' }, interval)
+    setTimeout(() => {
+      window.textColor = '#1d73c9'
+    }, interval)
     timeoutHandle = setTimeout(restore, 10000)
   }
 }
@@ -104,11 +111,26 @@ document.getElementById('play-zone').addEventListener('click', function () {
     setText('尚未就绪')
     return
   }
-  if (handle === 0) {
+  if (handle === 0 && method === 'tradition') {
     clearTimeout(timeoutHandle) // 下一轮开始时，之前的timeout不要插嘴
     window.textColor = 'white'
     randomSelect() // 不要窒息1s
     handle = setInterval(randomSelect, interval)
+  } else if (method === 'click_control') {
+    clearTimeout(timeoutHandle) // 下一轮开始时，之前的timeout不要插嘴
+    window.textColor = 'white'
+    randomSelect() // 不要窒息1s
+    if (handle === 0) {
+      handle = setInterval(randomSelect, interval)
+    } else {
+      clearInterval(handle)
+      handle = 0
+      luckyDogs.push(selected)
+      setTimeout(() => {
+        window.textColor = '#1d73c9'
+      }, interval)
+      timeoutHandle = setTimeout(restore, 10000)
+    }
   }
 })
 
