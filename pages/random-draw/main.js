@@ -93,6 +93,9 @@ function restore () {
   if (handle === 0) {
     window.textColor = 'white'
     setText(eventName)
+    if (method === 'click_control') {
+      timeoutHandle = 0
+    }
   }
 }
 
@@ -116,8 +119,7 @@ document.getElementById('play-zone').addEventListener('click', function () {
     window.textColor = 'white'
     randomSelect() // 不要窒息1s
     handle = setInterval(randomSelect, interval)
-  } else if (method === 'click_control') {
-    clearTimeout(timeoutHandle) // 下一轮开始时，之前的timeout不要插嘴
+  } else if (method === 'click_control' && timeoutHandle === 0) {
     window.textColor = 'white'
     randomSelect() // 不要窒息1s
     if (handle === 0) {
@@ -129,7 +131,7 @@ document.getElementById('play-zone').addEventListener('click', function () {
       setTimeout(() => {
         window.textColor = '#1d73c9'
       }, interval)
-      timeoutHandle = setTimeout(restore, 10000)
+      timeoutHandle = setTimeout(restore, 5000)
     }
   }
 })
