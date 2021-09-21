@@ -37,7 +37,6 @@ function main () {
       return
     }
     allStudents = data.data
-    alert(allStudents)
     if (Array.isArray(allStudents)) {
       pointsEnabled = false
       names = allStudents
@@ -49,7 +48,6 @@ function main () {
         totalPoints += point
         studentNum += 1
       })
-      alert(names)
     }
   })
 }
