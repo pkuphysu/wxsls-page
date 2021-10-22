@@ -71,6 +71,10 @@ const checkToken = async () => {
 }
 
 const main = async () => {
+  if (import.meta.env.MODE === 'development') {
+    localStorage.setItem('token', 'developmentoken')
+    await redirectPage()
+  }
   if (!await checkRedirectPage()) return
 
   const token = localStorage.getItem('token')
