@@ -27,7 +27,7 @@ const method = urlParams.get('method') || 'tradition'
 // to get enough particles
 window.word = urlParams.get('word') || eventName
 window.textColor = 'white'
-const interval = 150
+const interval = 140
 let selected = '人数不足'
 
 function main () {
