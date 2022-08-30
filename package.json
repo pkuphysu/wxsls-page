@@ -24,7 +24,7 @@
     "htmlhint": "^0.14.2",
     "husky": "^6.0.0",
     "svelte-hmr": "^0.14.5",
-    "vite": "^2.4.2",
+    "vite": "^2.9.13",
     "vite-plugin-vue2": "^1.7.3",
     "vue-template-compiler": "^2.6.14"
   },
