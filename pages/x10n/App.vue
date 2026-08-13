@@ -185,7 +185,9 @@ export default {
     }
   },
   created: () => console.log('大佬请认真答题'),
-  destroyed () {
+  // Vue 2 has no beforeUnmount hook; beforeDestroy is the supported equivalent.
+  // eslint-disable-next-line vue/no-deprecated-destroyed-lifecycle
+  beforeDestroy () {
     this.post()
   },
   methods: {

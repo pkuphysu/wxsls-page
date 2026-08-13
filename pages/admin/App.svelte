@@ -90,7 +90,7 @@
               {tablesInfo[tableName].rows} rows
             </div>
           </div>
-          <div class="spacer" />
+          <div class="spacer"></div>
           <button on:click={() => downloadData(tableName)}>Download</button>
           <button
             on:click={async () => {

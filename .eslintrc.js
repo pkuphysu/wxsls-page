@@ -5,21 +5,16 @@ module.exports = {
   },
   extends: [
     'standard',
-    'plugin:vue/recommended'
+    'plugin:vue/recommended',
+    'plugin:svelte/recommended'
   ],
   plugins: [
-    'svelte3'
+    'svelte'
   ],
   parserOptions: {
     ecmaVersion: 12,
     sourceType: 'module'
   },
-  overrides: [
-    {
-      files: ['*.svelte'],
-      processor: 'svelte3/svelte3'
-    }
-  ],
   rules: {
     // sveltejs/eslint-plugin-svelte3#82
     'no-multiple-empty-lines': ['error', { max: 1, maxBOF: 2 }]
