@@ -37,16 +37,15 @@ jobs:
           APPID_PROD: ${{ secrets.APPID_PROD }}
           APPID_DEV: ${{ secrets.APPID_DEV }}
       - name: Install serverless
-        run: curl -o- -L https://slss.io/install | bash
+        run: npm install -g serverless-cloud-framework
       - name: Deploy serverless website
         timeout-minutes: 5
         run: |
           set -o pipefail
-          $HOME/.serverless/bin/sls deploy | grep -v -e '中 ' -e '化 ' -e NA
+          scf deploy | grep -v -e '中 ' -e '化 ' -e NA
         env:
           STAGE: ${{ steps.env.outputs.stage }}
           APPID: ${{ steps.env.outputs.appid }}
           SERVERLESS_PLATFORM_VENDOR: tencent
-          SLS_GEO_LOCATION: cn
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
