@@ -14,6 +14,7 @@
     "@html-eslint/eslint-plugin": "^0.64.0",
     "@html-eslint/parser": "^0.64.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-vue2": "^2.3.4",
     "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
@@ -24,6 +25,7 @@
     "eslint-plugin-vue": "^10.10.0",
     "htmlhint": "^1.9.2",
     "husky": "^9.1.7",
+    "tailwindcss": "^4.3.3",
     "vite": "^7.3.6",
     "vue": "^2.7.16"
   },

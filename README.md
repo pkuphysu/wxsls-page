@@ -31,6 +31,18 @@ window.env = {
 <script src="/env.js"></script>
 ```
 
+开发服务器不依赖 `env.js` 中的后端地址。`npm run dev` 会将 `/__api/*`
+代理到本地后端，并自动使用后端支持的 `developmentoken`，因此不会进入微信认证流程。
+默认后端地址为 `http://127.0.0.1:5000`，可在 `.env.local` 中覆盖：
+
+```sh
+VITE_API_PROXY_TARGET=http://127.0.0.1:5000
+```
+
+直接打开开发服务器根路径会进入 `/pages/admin/`；也可以继续使用
+`/?page=x10n` 调试其他页面。该绕过逻辑只在 Vite development 模式生效，
+生产构建仍使用 `env.js` 和真实微信认证。
+
 ### Editor Integration
 
 都是 Optional，毕竟已经使用 husky 规范了：

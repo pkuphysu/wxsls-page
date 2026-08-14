@@ -1,5 +1,7 @@
 export const requestApi = async (method, url, data) => {
-  const API_URL = window.env.API_DETAILS[0].urls[0]
+  const requestUrl = import.meta.env.DEV
+    ? new URL(`/__api${url.startsWith('/') ? url : `/${url}`}`, location.origin)
+    : new URL(url, window.env.API_DETAILS[0].urls[0])
 
   const fetchInit = {
     headers: new Headers(),
@@ -7,14 +9,16 @@ export const requestApi = async (method, url, data) => {
     cache: 'no-cache',
     body: JSON.stringify(data)
   }
-  const token = localStorage.getItem('token')
+  const token = import.meta.env.DEV
+    ? 'developmentoken'
+    : localStorage.getItem('token')
   if (token) {
     fetchInit.headers.append('Authorization', 'Basic ' + token)
   }
   if (data) {
     fetchInit.headers.append('Content-Type', 'application/json')
   }
-  return fetch(new URL(url, API_URL), fetchInit)
+  return fetch(requestUrl, fetchInit)
     .then(resp => resp.json())
     .catch(err => alert(err))
 }
