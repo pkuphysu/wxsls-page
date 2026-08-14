@@ -1,7 +1,7 @@
 export const requestApi = async (method, url, data) => {
   const requestUrl = import.meta.env.DEV
     ? new URL(`/__api${url.startsWith('/') ? url : `/${url}`}`, location.origin)
-    : new URL(url, window.env.API_DETAILS[0].urls[0])
+    : new URL(url, window.env.API_URL)
 
   const fetchInit = {
     headers: new Headers(),
