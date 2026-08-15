@@ -16,5 +16,5 @@ inputs:
   env:
     # Tencent doesn't support `triggers[0]` yet.
     # It just doesn't get replaced
-    API_DETAILS: ${output:${stage}:${app}:pkuphysu-wechat.triggers}
+    API_URL: ${output:${stage}:${app}:pkuphysu-wechat.triggers.0.urls.0}
     APPID: ${env:APPID}
