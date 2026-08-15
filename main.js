@@ -1,6 +1,8 @@
 import { requestApi } from './utils/api'
 import './style.css'
 
+const TOKEN_POLL_INTERVAL = 1000
+
 const searchParams = new URLSearchParams(location.search)
 const page = searchParams.get('page')
 const tcode = searchParams.get('grant')
@@ -70,6 +72,21 @@ const checkToken = async () => {
   return checkData.status === 200
 }
 
+const pollTokenExchange = async (tcode) => {
+  while (true) {
+    const tokenExchangeData = await requestApi('GET', `/auth/tcode/exchange?tcode=${tcode}`)
+    if (tokenExchangeData.status === 200) {
+      if (setTokenFromData(tokenExchangeData)) redirectPage()
+      return
+    }
+    if (tokenExchangeData.errid !== 'ExchangeNoToken') {
+      alert('登录失败：' + JSON.stringify(tokenExchangeData))
+      return
+    }
+    await new Promise(resolve => setTimeout(resolve, TOKEN_POLL_INTERVAL))
+  }
+}
+
 const main = async () => {
   if (import.meta.env.MODE === 'development') {
     localStorage.setItem('token', 'developmentoken')
@@ -110,10 +127,8 @@ const main = async () => {
   document.getElementById('qr-content').innerText = grantURL
   // eslint-disable-next-line no-new
   new window.QRCode(document.getElementById('qrcode'), grantURL)
-  document.getElementById('done-scan').addEventListener('click', async () => {
-    const tokenExchangeData = await requestApi('GET', `/auth/tcode/exchange?tcode=${tcodeData.tcode}`)
-    if (setTokenFromData(tokenExchangeData)) redirectPage()
-  })
+  document.getElementById('qr-status').innerText = '等待扫码授权…'
+  await pollTokenExchange(tcodeData.tcode)
 }
 
 main()
