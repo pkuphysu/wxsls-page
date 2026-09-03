@@ -19,7 +19,7 @@
 
 ```js
 window.env = {
-  API_DETAILS: [{ urls: ['/'] }]
+  API_URL: 'https://backend.example'
 }
 ```
 
