@@ -34,13 +34,6 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif
     }
 
-    body {
-      background:
-        radial-gradient(circle at 20% 0%, rgba(70, 120, 255, .10), transparent 32%),
-        radial-gradient(circle at 100% 100%, rgba(200, 80, 255, .08), transparent 32%),
-        #050812;
-    }
-
     .app {
       height: 100%;
       display: grid;
@@ -103,17 +96,25 @@
 
     select,
     input[type=range],
+    input[type=number],
     button {
       font: inherit
     }
 
-    select {
+    select,
+    input[type=number] {
       color: var(--text);
       background: #111827;
       border: 0;
       border-radius: 8px;
       padding: 4px 22px 4px 7px;
       outline: none
+    }
+
+    input[type=number] {
+      width: 68px;
+      padding: 4px 7px;
+      text-align: center
     }
 
     input[type=range] {
@@ -149,7 +150,8 @@
     }
 
     button:disabled,
-    select:disabled {
+    select:disabled,
+    input:disabled {
       cursor: not-allowed;
       opacity: .45;
       filter: none
@@ -190,13 +192,20 @@
       min-width: 0;
       min-height: 0;
       overflow: hidden;
-      background: #050812
+      background: #050812 url(/bg.webp) center / cover no-repeat
     }
 
     canvas {
       display: block;
       width: 100%;
-      height: 100%
+      height: 100%;
+      cursor: grab;
+      user-select: none;
+      touch-action: none
+    }
+
+    canvas:active {
+      cursor: grabbing
     }
 
     .hud {
@@ -270,8 +279,11 @@
       backdrop-filter: blur(8px);
       border: 1px solid var(--line);
       text-align: center;
-      max-width: 500px;
-      padding: 38px
+      width: min(520px, 92vw);
+      max-height: 86vh;
+      overflow-y: auto;
+      pointer-events: auto;
+      padding: 30px 26px
     }
 
     .winnerBox .kicker {
@@ -283,9 +295,8 @@
     }
 
     .winnerBox h2 {
-      font-size: clamp(34px, 3vw, 72px);
       line-height: 1;
-      margin: 12px 0 22px;
+      margin: 6px 0 18px;
       letter-spacing: -.04em
     }
 
@@ -293,34 +304,41 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 14px
+      gap: 10px
     }
 
     .winnerCard {
-      min-width: 150px;
-      padding: 15px 18px;
+      flex: 1 1 104px;
+      min-width: 0;
+      max-width: 150px;
+      padding: 12px 10px;
     }
 
     .winnerAvatar {
-      width: 52px;
-      height: 52px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
+      overflow: hidden;
       margin: 0 auto 8px;
       display: grid;
       place-items: center;
       font-weight: 950;
       color: #08101b;
       background: linear-gradient(135deg, #fff7bd, #ffbd6c);
-      box-shadow: 0 0 0 5px rgba(255, 216, 115, .10), 0 0 26px rgba(255, 216, 115, .24)
+      box-shadow: 0 0 0 4px rgba(255, 216, 115, .10), 0 0 22px rgba(255, 216, 115, .24)
     }
 
     .winnerCard b {
-      display: block
+      display: block;
+      font-size: 15px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .winnerCard span {
-      font-size: 11px;
-      color: #c9b986
+      font-size: 16px;
+      color: black;
     }
 
     aside {
@@ -333,7 +351,7 @@
     }
 
     .sideHead {
-      padding: 16px 16px 12px;
+      /*padding: 16px 16px 12px;*/
       border-bottom: 1px solid var(--line)
     }
 
@@ -382,7 +400,30 @@
 
     .rankList {
       overflow: auto;
-      padding: 8px 10px 12px
+      padding: 8px 10px 12px;
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, .16) transparent
+    }
+
+    .rankList::-webkit-scrollbar {
+      width: 10px
+    }
+
+    .rankList::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    .rankList::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .12);
+      border: 3px solid transparent;
+      border-radius: 99px;
+      background-clip: padding-box
+    }
+
+    .rankList::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, .22);
+      background-clip: padding-box
     }
 
     .row {
@@ -427,7 +468,7 @@
       place-items: center;
       color: #07101b;
       background: var(--c, #7eeaff);
-      font-size: 9px;
+      font-size: 12px;
       font-weight: 950;
       box-shadow: 0 0 15px color-mix(in srgb, var(--c, #7eeaff) 24%, transparent)
     }
@@ -518,18 +559,12 @@
       <div class="controls">
         <div class="control">
           <label for="winnerCount">最终中奖</label>
-          <select id="winnerCount" disabled>
-            <option value="1">1 人</option>
-            <option value="2">2 人</option>
-            <option value="3" selected>3 人</option>
-            <option value="4">4 人</option>
-            <option value="5">5 人</option>
-          </select>
+          <input id="winnerCount" type="number" min="1" step="1" value="3" inputmode="numeric" disabled />
         </div>
         <div class="control">
           <label for="speed">演示速度</label>
-          <input id="speed" type="range" min="0.6" max="3" step="0.1" value="1.4" />
-          <span class="speedText" id="speedText">1.4×</span>
+          <input id="speed" type="range" min="0.3" max="2" step="0.05" value="0.8" />
+          <span class="speedText" id="speedText">0.8×</span>
         </div>
         <button class="primary" id="startBtn" disabled>加载名单中…</button>
         <button id="resetBtn" disabled>重置</button>
@@ -549,7 +584,6 @@
 
       <aside>
         <div class="sideHead">
-          <h2>排行榜</h2>
           <p id="participantStatus">正在从后端加载参与者名单…</p>
         </div>
         <div class="progressWrap">
@@ -577,13 +611,14 @@
       const eventName = urlParams.get("event") || urlParams.get("word") || "抽奖";
       let participants = [];
       let loadState = "loading";
+      const avatarImages = new Map();
 
       const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d", { alpha: false });
+      const ctx = canvas.getContext("2d");
       const stage = document.getElementById("stage");
       const trailCanvas = document.createElement("canvas");
       const tctx = trailCanvas.getContext("2d");
-      const winnerSelect = document.getElementById("winnerCount");
+      const winnerInput = document.getElementById("winnerCount");
       const speedInput = document.getElementById("speed");
       const speedText = document.getElementById("speedText");
       const startBtn = document.getElementById("startBtn");
@@ -600,27 +635,47 @@
       let particles = [], stars = [], explosions = [], liveCounts = [], logs = [];
       let initialParticleCount = 0, liveParticleCount = 0, liveParticipantCount = 0;
       let running = false, finished = false, simTime = 0, lastTs = 0, uiTs = 0;
-      let targetWinners = +winnerSelect.value;
+      let targetWinners = +winnerInput.value;
       let speed = +speedInput.value;
       let seed = 0, rng = Math.random;
 
       const STAR_RADIUS = 0.070;
       const BASE_ESCAPE_R = 1.18;
-      // 以原恒星引力系数为单位做无量纲化：G=1。
-      // TIME_SCALE 与 VELOCITY_SCALE 成对使用，保持归一化前的轨迹和演示时长。
       const GRAVITY = 1;
       const GRAVITY_REFERENCE = 0.145;
       const TIME_SCALE = Math.sqrt(GRAVITY_REFERENCE / GRAVITY);
       const VELOCITY_SCALE = 1 / TIME_SCALE;
       const PARTICLE_GRAVITY_SCALE = 0.132 / GRAVITY_REFERENCE;
-      const STAR_CENTER_PULL = 0;
       const PARTICLE_CENTER_PULL = 0.003 / GRAVITY_REFERENCE;
-      // Chenciner-Montgomery figure-eight solution, scaled to the stage.
-      // Position scales by L and velocity by 1/sqrt(L) when G=1.
-      const FIGURE_EIGHT_SCALE = 0.43;
-      const FIGURE_EIGHT_VELOCITY_SCALE = 1 / Math.sqrt(FIGURE_EIGHT_SCALE);
-      const STAR_POSITION_JITTER = 0.008;
-      const STAR_VELOCITY_JITTER = 0.012;
+
+      const STAR_SOFTENING = 0.04;
+      const STAR_SUBSTEP = 0.002;
+      // 运行时施加扰动
+      const STAR_POSITION_JITTER = 0.06;
+      const STAR_VELOCITY_JITTER = 0.06;
+      // 预生成的初始条件
+      const STAR_PRESETS = [
+        [{ x: 0.097281, y: 0.286652, vx: -1.122877, vy: -1.180719 }, { x: -0.344117, y: -0.313592, vx: -0.515027, vy: 0.495511 }, { x: 0.246836, y: 0.02694, vx: 1.637904, vy: 0.685208 }],
+        [{ x: 0.278833, y: -0.11815, vx: 1.094204, vy: -1.206783 }, { x: 0.008711, y: -0.248007, vx: -0.562433, vy: 1.684326 }, { x: -0.287544, y: 0.366157, vx: -0.531771, vy: -0.477543 }],
+        [{ x: 0.147761, y: 0.441154, vx: -0.65724, vy: 0.287137 }, { x: 0.076728, y: -0.225345, vx: 0.115647, vy: -1.791967 }, { x: -0.224489, y: -0.215809, vx: 0.541593, vy: 1.504831 }],
+        [{ x: -0.167074, y: -0.259402, vx: 0.194838, vy: 1.597568 }, { x: 0.038467, y: 0.463769, vx: -0.706711, vy: 0.116825 }, { x: 0.128607, y: -0.204367, vx: 0.511873, vy: -1.714393 }],
+        [{ x: -0.117633, y: 0.450601, vx: 0.699235, vy: 0.142868 }, { x: -0.0769, y: -0.28803, vx: 0.259721, vy: -1.623853 }, { x: 0.194532, y: -0.162571, vx: -0.958955, vy: 1.480984 }],
+        [{ x: 0.2381, y: -0.055032, vx: -1.560465, vy: 0.863498 }, { x: -0.3017, y: 0.354438, vx: 0.577931, vy: 0.421955 }, { x: 0.0636, y: -0.299406, vx: 0.982535, vy: -1.285454 }],
+        [{ x: -0.196454, y: 0.189868, vx: 0.750692, vy: -1.544369 }, { x: 0.104657, y: -0.454059, vx: -0.694708, vy: -0.154427 }, { x: 0.091797, y: 0.264191, vx: -0.055985, vy: 1.698795 }],
+        [{ x: -0.452554, y: 0.107535, vx: 0.230678, vy: 0.679825 }, { x: 0.237573, y: -0.204249, vx: 1.545089, vy: -0.38554 }, { x: 0.214981, y: 0.096714, vx: -1.775767, vy: -0.294285 }],
+        [{ x: -0.201087, y: -0.41942, vx: -0.674017, vy: 0.247599 }, { x: 0.210055, y: 0.10581, vx: 1.349276, vy: 1.192859 }, { x: -0.008968, y: 0.31361, vx: -0.67526, vy: -1.440459 }],
+        [{ x: -0.021887, y: 0.279632, vx: -0.734766, vy: 1.530222 }, { x: -0.255328, y: 0.094896, vx: 1.310907, vy: -1.112415 }, { x: 0.277215, y: -0.374528, vx: -0.576141, vy: -0.417807 }],
+        [{ x: -0.291174, y: 0.097712, vx: -1.158654, vy: 1.124113 }, { x: -0.027386, y: 0.2416, vx: 0.676145, vy: -1.652945 }, { x: 0.31856, y: -0.339312, vx: 0.482509, vy: 0.528833 }],
+        [{ x: -0.20413, y: 0.418834, vx: -0.646326, vy: -0.298507 }, { x: 0.23113, y: -0.135108, vx: 1.123408, vy: -1.317161 }, { x: -0.027, y: -0.283726, vx: -0.477082, vy: 1.615668 }]
+      ];
+      const STAR_PALETTE = ["#7edcff", "#ff8d9f", "#ffd76d"];
+      const PARTICLE_RADIUS_MEAN = 0.77;
+      const PARTICLE_RADIUS_SIGMA = 0.11;
+      const ZOOM_MIN = 0.4;
+      const ZOOM_MAX = 8;
+      const ZOOM_WHEEL_STEP = 1.12;
+      let zoom = 1, panX = 0, panY = 0;
+      let dragging = false, dragX = 0, dragY = 0;
 
       document.title = `${eventName} · 抽奖程序`;
 
@@ -640,30 +695,44 @@
       }
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
       const hypot = (x, y) => Math.sqrt(x * x + y * y);
+      function gaussian(mean, sigma) {
+        let u = 0, v = 0;
+        while (u === 0) u = rng();
+        while (v === 0) v = rng();
+        return mean + sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      }
 
       function normalizeParticipants(data) {
         const entries = Array.isArray(data)
-          ? data.map(name => [name, 1])
+          ? data.map(name => [name, 1, null])
           : Object.entries(data || {}).map(([name, investment]) => {
-            const value = Array.isArray(investment) ? investment[prizeType] : investment;
+            const record = Array.isArray(investment) ? { investment } : investment || {};
+            const values = Array.isArray(record.investment) ? record.investment : investment;
+            const value = Array.isArray(values) ? values[prizeType] : values;
             const points = Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
-            return [name, points + 1];
+            return [name, points + 1, record.avatar || null];
           });
 
         return entries
           .filter(([name, tickets]) => String(name).trim() && Number.isSafeInteger(tickets) && tickets > 0)
-          .map(([name, tickets], id) => ({
-            id, name: String(name).trim(), tickets,
+          .map(([name, tickets, avatar], id) => ({
+            id, name: String(name).trim(), tickets, avatar,
             color: `hsl(${(id * 137.508) % 360} 22% 68%)`
           }));
       }
 
-      function configureWinnerOptions() {
-        for (const option of winnerSelect.options) {
-          option.disabled = Number(option.value) > participants.length;
-        }
-        targetWinners = Math.min(Number(winnerSelect.value), participants.length);
-        winnerSelect.value = String(Math.max(1, targetWinners));
+      function avatarMarkup(person, className) {
+        const fallback = escapeHtml(person.name.slice(0, 1));
+        return person.avatar
+          ? `<img class="${className}" src="${escapeHtml(person.avatar)}" alt="${escapeHtml(person.name)}" onerror="this.remove()"><span class="${className} avatarFallback">${fallback}</span>`
+          : `<span class="${className}">${fallback}</span>`;
+      }
+
+      function configureWinnerCount() {
+        const max = Math.max(1, participants.length);
+        winnerInput.max = String(max);
+        targetWinners = Math.min(Math.max(1, Math.floor(Number(winnerInput.value)) || 1), max);
+        winnerInput.value = String(targetWinners);
       }
 
       async function loadParticipants() {
@@ -678,13 +747,11 @@
           if (!participants.length) throw new Error("EmptyParticipants");
 
           loadState = "ready";
-          configureWinnerOptions();
-          winnerSelect.disabled = false;
+          configureWinnerCount();
+          winnerInput.disabled = false;
           startBtn.disabled = false;
           resetBtn.disabled = false;
-          participantStatus.textContent = weighted
-            ? `${participants.length} 名参与者`
-            : `${participants.length} 名参与者；每个投点数对应 1 个粒子`;
+          participantStatus.textContent = "";
           reset();
         } catch (error) {
           loadState = "error";
@@ -707,6 +774,25 @@
         tctx.clearRect(0, 0, W, H);
       }
 
+      function applyCamera() {
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        ctx.translate(panX, panY);
+        ctx.scale(zoom, zoom);
+      }
+
+      function resetCamera() {
+        zoom = 1; panX = 0; panY = 0;
+      }
+
+      function zoomAtCursor(clientX, clientY, factor) {
+        const r = canvas.getBoundingClientRect();
+        const mx = clientX - r.left, my = clientY - r.top;
+        const next = clamp(zoom * factor, ZOOM_MIN, ZOOM_MAX);
+        const bx = (mx - panX) / zoom, by = (my - panY) / zoom;
+        panX = mx - next * bx; panY = my - next * by;
+        zoom = next;
+      }
+
       function worldToScreen(x, y) {
         const s = Math.min(W, H) * 0.44;
         return [W * 0.5 + x * s, H * 0.52 + y * s];
@@ -714,41 +800,25 @@
 
       function reset() {
         running = false; finished = false; simTime = 0; lastTs = 0; uiTs = 0;
-        targetWinners = +winnerSelect.value;
+        resetCamera();
+        configureWinnerCount();
         seed = randomSeed(); rng = mulberry32(seed);
         overlay.classList.remove("show");
         winnerGrid.innerHTML = "";
         logs = [];
         explosions = [];
-        startBtn.textContent = "开始模拟";
-
-        // 三体等质量 8 字轨道的标准初态（G=1）。标准解的尺度约为
-        // x1=( 0.97000436,-0.24308753), x2=-x1, x3=(0,0)，
-        // v1=v2=(0.466203685,0.432365730), v3=-2*v1。
-        // 等质量和质心为零是这个周期解能保持稳定的关键。
-        stars = [
-          {
-            x: 0.97000436 * FIGURE_EIGHT_SCALE, y: -0.24308753 * FIGURE_EIGHT_SCALE,
-            vx: 0.466203685 * FIGURE_EIGHT_VELOCITY_SCALE, vy: 0.432365730 * FIGURE_EIGHT_VELOCITY_SCALE, m: 1, c: "#7edcff"
-          },
-          {
-            x: -0.97000436 * FIGURE_EIGHT_SCALE, y: 0.24308753 * FIGURE_EIGHT_SCALE,
-            vx: 0.466203685 * FIGURE_EIGHT_VELOCITY_SCALE, vy: 0.432365730 * FIGURE_EIGHT_VELOCITY_SCALE, m: 1, c: "#ff8d9f"
-          },
-          {
-            x: 0, y: 0,
-            vx: -0.932407370 * FIGURE_EIGHT_VELOCITY_SCALE, vy: -0.864731460 * FIGURE_EIGHT_VELOCITY_SCALE, m: 1, c: "#ffd76d"
-          }
-        ];
-        // 扰动后重新扣除平均值，保持质心位置和质心速度仍在原点。
+        startBtn.textContent = "开始抽奖";
+        stars = pickStarConfiguration();
         const positionJitter = stars.map(() => ({ x: (rng() - .5) * STAR_POSITION_JITTER, y: (rng() - .5) * STAR_POSITION_JITTER }));
         const velocityJitter = stars.map(() => ({ x: (rng() - .5) * STAR_VELOCITY_JITTER, y: (rng() - .5) * STAR_VELOCITY_JITTER }));
-        const positionMean = { x: positionJitter.reduce((sum, j) => sum + j.x, 0) / stars.length, y: positionJitter.reduce((sum, j) => sum + j.y, 0) / stars.length };
-        const velocityMean = { x: velocityJitter.reduce((sum, j) => sum + j.x, 0) / stars.length, y: velocityJitter.reduce((sum, j) => sum + j.y, 0) / stars.length };
+        const positionMean = { x: positionJitter.reduce((s, j) => s + j.x, 0) / stars.length, y: positionJitter.reduce((s, j) => s + j.y, 0) / stars.length };
+        const velocityMean = { x: velocityJitter.reduce((s, j) => s + j.x, 0) / stars.length, y: velocityJitter.reduce((s, j) => s + j.y, 0) / stars.length };
         for (let i = 0; i < stars.length; i++) {
           const s = stars[i];
-          s.x += positionJitter[i].x - positionMean.x; s.y += positionJitter[i].y - positionMean.y;
-          s.vx += velocityJitter[i].x - velocityMean.x; s.vy += velocityJitter[i].y - velocityMean.y;
+          s.x += positionJitter[i].x - positionMean.x;
+          s.y += positionJitter[i].y - positionMean.y;
+          s.vx += velocityJitter[i].x - velocityMean.x;
+          s.vy += velocityJitter[i].y - velocityMean.y;
         }
 
         particles = [];
@@ -760,7 +830,7 @@
         for (const person of participants) {
           for (let k = 0; k < person.tickets; k++) {
             const a = rng() * Math.PI * 2;
-            const r = 0.56 + rng() * 0.42;
+            const r = clamp(gaussian(PARTICLE_RADIUS_MEAN, PARTICLE_RADIUS_SIGMA), 0.18, 1.12);
             const tangential = (rng() < .5 ? -1 : 1) * (0.24 + rng() * 0.26) * VELOCITY_SCALE;
             const radial = (rng() - .5) * 0.14 * VELOCITY_SCALE;
             const tx = -Math.sin(a), ty = Math.cos(a);
@@ -782,34 +852,31 @@
       }
 
       function escapeRadius() {
-        // 导演参数：随时间缓慢收紧舞台，保证 1~2 分钟内能够决出结果。
-        // 这不改变“参与者 ↔ 粒子”的随机公平映射，只控制演示节奏。
         const q = clamp(simTime / 92, 0, 1);
         const eased = q * q * (3 - 2 * q);
         return BASE_ESCAPE_R - 0.53 * eased;
       }
 
-      function physicsStep(dt) {
-        if (finished) return;
-
-        // --- 三颗恒星之间的近似三体运动 ---
-        const epsS = 0.085;
+      function starAccelerations(stars) {
         const acc = stars.map(() => ({ x: 0, y: 0 }));
         for (let i = 0; i < stars.length; i++) {
           for (let j = i + 1; j < stars.length; j++) {
             const A = stars[i], B = stars[j];
             const dx = B.x - A.x, dy = B.y - A.y;
-            const r2 = dx * dx + dy * dy + epsS * epsS;
+            const r2 = dx * dx + dy * dy + STAR_SOFTENING * STAR_SOFTENING;
             const inv = 1 / Math.pow(r2, 1.5);
             const f = GRAVITY * inv;
             acc[i].x += f * B.m * dx; acc[i].y += f * B.m * dy;
             acc[j].x -= f * A.m * dx; acc[j].y -= f * A.m * dy;
           }
         }
+        return acc;
+      }
+
+      function stepStars(stars, dt) {
+        const acc = starAccelerations(stars);
         for (let i = 0; i < stars.length; i++) {
           const s = stars[i];
-          // 很弱的“舞台约束”，避免演示中的三颗星永久飞离画面。
-          acc[i].x += -STAR_CENTER_PULL * s.x; acc[i].y += -STAR_CENTER_PULL * s.y;
           s.vx += acc[i].x * dt; s.vy += acc[i].y * dt;
           const sv = hypot(s.vx, s.vy);
           const starSpeedLimit = 10;
@@ -821,6 +888,25 @@
             if (vr > 0) { s.vx -= 1.75 * vr * nx; s.vy -= 1.75 * vr * ny }
           }
         }
+        return stars;
+      }
+
+      function advanceStars(stars, dt) {
+        const sub = Math.max(1, Math.ceil(dt / STAR_SUBSTEP));
+        const h = dt / sub;
+        for (let k = 0; k < sub; k++) stepStars(stars, h);
+        return stars;
+      }
+
+      function pickStarConfiguration() {
+        const preset = STAR_PRESETS[Math.floor(rng() * STAR_PRESETS.length)];
+        return preset.map((s, i) => ({ x: s.x, y: s.y, vx: s.vx, vy: s.vy, m: 1, c: STAR_PALETTE[i] }));
+      }
+
+      function physicsStep(dt) {
+        if (finished) return;
+
+        advanceStars(stars, dt);
 
         const pressure = clamp(simTime / 90, 0, 1);
         const gravityScale = PARTICLE_GRAVITY_SCALE * (1 + 1.35 * pressure);
@@ -882,7 +968,6 @@
           logs.unshift(`${who.name} 的最后一枚粒子${reason === "collision" ? "撞入恒星" : "逃逸出局"}`);
           logs = logs.slice(0, 4);
 
-          // 顺序处理最后一个粒子，因此不会从 K+1 一步跨到 K-1。
           if (liveParticipantCount === targetWinners) {
             finishSimulation();
           }
@@ -899,7 +984,7 @@
 
         winnerGrid.innerHTML = winners.map(p => `
       <div class="winnerCard">
-        <div class="winnerAvatar">${escapeHtml(p.name.slice(0, 1))}</div>
+        <div class="winnerAvatar">${avatarMarkup(p, "winnerAvatarImage")}</div>
         <b>${escapeHtml(p.name)}</b>
       </div>
     `).join("");
@@ -912,10 +997,8 @@
       }
 
       function drawBackground() {
-        ctx.fillStyle = "#050812";
-        ctx.fillRect(0, 0, W, H);
+        ctx.clearRect(0, 0, W, H);
 
-        // 背景星点（由 seed 决定位置，重置后改变）。
         ctx.save();
         ctx.globalAlpha = .45;
         for (let i = 0; i < 85; i++) {
@@ -930,11 +1013,9 @@
 
       function draw() {
         drawBackground();
-
-        // Offscreen trail：只累积粒子，不把 UI 和恒星一起拖影。
         tctx.save();
-        tctx.globalCompositeOperation = "source-over";
-        tctx.fillStyle = "rgba(5,8,18,.12)";
+        tctx.globalCompositeOperation = "destination-out";
+        tctx.fillStyle = "rgba(0,0,0,.12)";
         tctx.fillRect(0, 0, W, H);
         tctx.globalCompositeOperation = "lighter";
 
@@ -949,14 +1030,14 @@
           const [x, y] = worldToScreen(p.x, p.y);
           tctx.globalAlpha = .28;
           tctx.fillStyle = participants[p.pid].color;
-          tctx.fillRect(x - 1, y - 1, 2, 2);
+          tctx.beginPath(); tctx.arc(x, y, 1, 0, Math.PI * 2); tctx.fill();
         }
         tctx.restore();
+        ctx.save();
+        applyCamera();
         ctx.globalAlpha = .82;
         ctx.drawImage(trailCanvas, 0, 0, W, H);
         ctx.globalAlpha = 1;
-
-        // 动态逃逸边界
         const bound = escapeRadius();
         const [cx, cy] = worldToScreen(0, 0);
         const scale = Math.min(W, H) * 0.44;
@@ -971,7 +1052,6 @@
         ctx.fillText("", cx + bound * scale - 86, cy - 8);//ESCAPE LIMIT
         ctx.restore();
 
-        // 画所有存活票粒子
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
         for (let i = 0; i < particles.length; i++) {
@@ -980,14 +1060,12 @@
           const [x, y] = worldToScreen(p.x, p.y);
           ctx.globalAlpha = .72;
           ctx.fillStyle = participants[p.pid].color;
-          ctx.fillRect(x - 1.3, y - 1.3, 2.6, 2.6);
+          ctx.beginPath(); ctx.arc(x, y, 1.3, 0, Math.PI * 2); ctx.fill();
         }
         ctx.restore();
 
-        // 三颗恒星
         for (let i = 0; i < stars.length; i++) drawStar(stars[i], i);
 
-        // 爆炸/淘汰环
         for (let i = explosions.length - 1; i >= 0; i--) {
           const e = explosions[i]; e.age += 1 / 60;
           if (e.age > e.life) { explosions.splice(i, 1); continue }
@@ -1010,6 +1088,7 @@
           const [x, y] = worldToScreen(p.x, p.y);
           drawAvatarBadge(x, y, badgeR, person, liveCounts[pid]);
         }
+        ctx.restore();
 
         if (!running && !finished) {
           ctx.save();
@@ -1020,7 +1099,7 @@
           ctx.font = "600 15px system-ui";
           const prompt = loadState === "loading"
             ? "正在加载参与者名单…"
-            : loadState === "error" ? "参与者名单加载失败" : "点击「开始模拟」释放全部粒子";
+            : loadState === "error" ? "参与者名单加载失败" : "";
           ctx.fillText(prompt, W / 2, H - 21);
           ctx.restore();
         }
@@ -1042,8 +1121,6 @@
 
         ctx.fillStyle = s.c;
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "rgba(255,255,255,.85)";
-        ctx.beginPath(); ctx.arc(x - r * .23, y - r * .26, r * .30, 0, Math.PI * 2); ctx.fill();
 
         ctx.save();
         ctx.strokeStyle = `rgba(${rgb},.35)`;
@@ -1059,14 +1136,21 @@
         ctx.strokeStyle = person.color;
         ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(x, y, r + 1, 0, Math.PI * 2); ctx.stroke();
-        ctx.fillStyle = person.color;
-        ctx.beginPath(); ctx.arc(x, y, r - 1, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = "#07101a";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = `900 ${Math.max(8, r * .85)}px system-ui`;
-        ctx.fillText(person.name.slice(0, 1), x, y + .3);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(x, y, r - 1, 0, Math.PI * 2); ctx.clip();
+        const image = getAvatarImage(person.avatar);
+        if (image?.complete && image.naturalWidth > 0) {
+          ctx.drawImage(image, x - r + 1, y - r + 1, (r - 1) * 2, (r - 1) * 2);
+        } else {
+          ctx.fillStyle = person.color;
+          ctx.fillRect(x - r, y - r, r * 2, r * 2);
+          ctx.fillStyle = "#07101a";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = `900 ${Math.max(8, r * .85)}px system-ui`;
+          ctx.fillText(person.name.slice(0, 1), x, y + .3);
+        }
+        ctx.restore();
 
         if (liveParticipantCount <= 12) {
           ctx.textAlign = "left";
@@ -1076,6 +1160,16 @@
           ctx.fillText(`${person.name} · ${count}`, x + r + 6, y + 3);
         }
         ctx.restore();
+      }
+
+      function getAvatarImage(url) {
+        if (!url) return null;
+        if (!avatarImages.has(url)) {
+          const image = new Image();
+          image.src = url;
+          avatarImages.set(url, image);
+        }
+        return avatarImages.get(url);
       }
 
       function updateUI(force = false) {
@@ -1097,7 +1191,7 @@
         rankList.innerHTML = ranking.map((p, idx) => `
       <div class="row ${p.live === 0 ? "out" : ""}" style="--ratio:${(p.live / maxLive * 100).toFixed(1)}%;--c:${p.color}">
         <div class="rank">${String(idx + 1).padStart(2, "0")}</div>
-        <div class="miniAvatar">${escapeHtml(p.name.slice(0, 1))}</div>
+        <div class="miniAvatar">${avatarMarkup(p, "miniAvatarImage")}</div>
         <div class="name"><b>${escapeHtml(p.name)}</b><span>${p.tickets} 点</span></div>
         <div class="count"><b>${p.live}</b><span></span></div>
       </div>
@@ -1144,8 +1238,7 @@
         if (running) overlay.classList.remove("show");
       });
       resetBtn.addEventListener("click", reset);
-      winnerSelect.addEventListener("change", () => {
-        // 目标人数改变后从同一份后端数据重新发牌，避免中途改变终局规则。
+      winnerInput.addEventListener("change", () => {
         reset();
       });
       speedInput.addEventListener("input", () => {
@@ -1153,6 +1246,20 @@
         speedText.textContent = speed.toFixed(1) + "×";
       });
       window.addEventListener("resize", resize);
+      canvas.addEventListener("wheel", e => {
+        e.preventDefault();
+        zoomAtCursor(e.clientX, e.clientY, e.deltaY < 0 ? ZOOM_WHEEL_STEP : 1 / ZOOM_WHEEL_STEP);
+      }, { passive: false });
+      canvas.addEventListener("mousedown", e => {
+        if (e.button !== 0) return;
+        dragging = true; dragX = e.clientX; dragY = e.clientY;
+      });
+      window.addEventListener("mousemove", e => {
+        if (!dragging) return;
+        panX += e.clientX - dragX; panY += e.clientY - dragY;
+        dragX = e.clientX; dragY = e.clientY;
+      });
+      window.addEventListener("mouseup", () => { dragging = false; });
 
       resize();
       requestAnimationFrame(frame);
