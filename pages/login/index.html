@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/forms-min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/buttons-min.css" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@4.6.2/dist/fp.min.js" defer></script>
+    <script src="/env.js"></script>
+    <script src="./main.js" type="module"></script>
+    <title>公众号后台扫码登录</title>
+  </head>
+  <body>
+    <div style="margin: auto; max-width: 360px; text-align: center">
+      <h3>公众号后台扫码登录</h3>
+      <p id="fp-box" style="color: #555; font-family: monospace; font-size: 12px; word-break: break-all">&nbsp;</p>
+      <p id="session-box" style="color: #555">&nbsp;</p>
+      <button id="check-btn" class="pure-button">校验会话有效性</button>
+      <hr />
+      <p id="status-box" style="color: darkred">&nbsp;</p>
+      <img id="qrcode-img" alt="登录二维码" style="display: none" />
+      <br />
+      <button id="start-btn" class="pure-button pure-button-primary">生成登录二维码</button>
+      <button id="restart-btn" class="pure-button" style="display: none">重新获取二维码</button>
+    </div>
+  </body>
+</html>
