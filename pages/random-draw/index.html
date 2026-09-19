@@ -315,6 +315,7 @@
     }
 
     .winnerAvatar {
+      position: relative;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -326,6 +327,16 @@
       color: #08101b;
       background: linear-gradient(135deg, #fff7bd, #ffbd6c);
       box-shadow: 0 0 0 4px rgba(255, 216, 115, .10), 0 0 22px rgba(255, 216, 115, .24)
+    }
+
+    /* 头像 img 铺满圆形容器压在首字母上；加载失败被移除后露出 fallback */
+    .winnerAvatar img,
+    .miniAvatar img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .winnerCard b {
@@ -461,9 +472,11 @@
     }
 
     .miniAvatar {
+      position: relative;
       width: 29px;
       height: 29px;
       border-radius: 50%;
+      overflow: hidden;
       display: grid;
       place-items: center;
       color: #07101b;
@@ -717,7 +730,7 @@
             const values = Array.isArray(record.investment) ? record.investment : investment;
             const value = Array.isArray(values) ? values[prizeType] : values;
             const points = Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
-            return [name, points + 1, record.avatar || null];
+            return [name, points + 1, record.avatar_url || null];
           });
 
         return entries
