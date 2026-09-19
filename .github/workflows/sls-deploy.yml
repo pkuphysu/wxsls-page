@@ -29,13 +29,17 @@ jobs:
           if [ $GITHUB_REF == 'refs/heads/master' ]; then
             echo 'stage=prod' >> "$GITHUB_OUTPUT"
             echo "appid=$APPID_PROD" >> "$GITHUB_OUTPUT"
+            echo "api_url=$API_URL_PROD" >> "$GITHUB_OUTPUT"
           else
             echo 'stage=dev' >> "$GITHUB_OUTPUT"
             echo "appid=$APPID_DEV" >> "$GITHUB_OUTPUT"
+            echo "api_url=$API_URL_DEV" >> "$GITHUB_OUTPUT"
           fi
         env:
           APPID_PROD: ${{ secrets.APPID_PROD }}
           APPID_DEV: ${{ secrets.APPID_DEV }}
+          API_URL_PROD: ${{ secrets.API_URL_PROD }}
+          API_URL_DEV: ${{ secrets.API_URL_DEV }}
       - name: Install serverless
         run: npm install -g serverless-cloud-framework
       - name: Deploy serverless website
@@ -46,6 +50,7 @@ jobs:
         env:
           STAGE: ${{ steps.env.outputs.stage }}
           APPID: ${{ steps.env.outputs.appid }}
+          API_URL: ${{ steps.env.outputs.api_url }}
           SERVERLESS_PLATFORM_VENDOR: tencent
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}

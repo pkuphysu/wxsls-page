@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>微信验证门户 - 请稍候</title>
     <script src="/env.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
@@ -11,10 +12,11 @@
   </head>
   <body>
     <div id="qr-to-scan" style="display: none;">
+      <h1>微信扫码登录</h1>
       <p>请使用手机微信扫描二维码以在 PC 端登录</p>
       <p>或复制链接 <span id="qr-content"></span> 在微信内打开</p>
       <div id="qrcode"></div>
-      <button id="done-scan">扫描完毕</button>
+      <p id="qr-status" role="status" aria-live="polite">正在准备二维码…</p>
     </div>
   </body>
 </html>

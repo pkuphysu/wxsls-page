@@ -14,7 +14,5 @@ inputs:
   replace: true
   protocol: https
   env:
-    # Tencent doesn't support `triggers[0]` yet.
-    # It just doesn't get replaced
-    API_URL: ${output:${stage}:${app}:pkuphysu-wechat.triggers.0.urls.0}
+    API_URL: ${env:API_URL}
     APPID: ${env:APPID}
