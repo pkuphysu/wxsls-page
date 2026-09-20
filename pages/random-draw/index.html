@@ -131,7 +131,7 @@
 
     button {
       height: 32px;
-      border-radius: 11px;
+      border-radius: 4px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, .04);
       color: var(--text);
@@ -259,6 +259,71 @@
       margin-left: 0
     }
 
+    .excludedPanel {
+      position: absolute;
+      left: 18px;
+      top: 62px;
+      z-index: 2;
+      display: none;
+      flex-direction: column;
+      min-width: 170px;
+      max-height: 42%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: rgba(5, 8, 18, .62);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      color: #cbd6e8;
+      overflow: hidden
+    }
+
+    .excludedPanel.show {
+      display: flex
+    }
+
+    .excludedPanel h3 {
+      margin: 0;
+      padding: 9px 11px 6px;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 800
+    }
+
+    .excludedList {
+      overflow-y: auto;
+      padding: 0 6px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, .16) transparent
+    }
+
+    .excludedRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 5px
+    }
+
+    .excludedRow span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .excludedRow button {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      font-size: 12px;
+      line-height: 1;
+      border: none;
+      color: var(--muted);
+      flex: none
+    }
+
     .winnerOverlay {
       position: fixed;
       inset: 0;
@@ -307,6 +372,64 @@
       gap: 10px
     }
 
+    .winnerActions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px
+    }
+
+    .winnerActions button {
+      border-radius: 2px;
+      height: 36px;
+      min-width: 120px
+    }
+
+    .rulesOverlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .55);
+      z-index: 6
+    }
+
+    .rulesOverlay.show {
+      display: flex
+    }
+
+    .rulesBox {
+      background-color: rgba(8, 11, 17, .92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      width: min(560px, 92vw);
+      max-height: 86vh;
+      overflow-y: auto;
+      padding: 26px 30px
+    }
+
+    .rulesBox h2 {
+      margin: 0 0 12px;
+      letter-spacing: -.02em
+    }
+
+    .rulesBox h3 {
+      font-size: 12px;
+      color: var(--cyan);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin: 16px 0 6px
+    }
+
+    .rulesBox ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #cbd6e8;
+      font-size: 13px;
+      line-height: 1.9
+    }
+
     .winnerCard {
       flex: 1 1 104px;
       min-width: 0;
@@ -315,6 +438,7 @@
     }
 
     .winnerAvatar {
+      position: relative;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -326,6 +450,16 @@
       color: #08101b;
       background: linear-gradient(135deg, #fff7bd, #ffbd6c);
       box-shadow: 0 0 0 4px rgba(255, 216, 115, .10), 0 0 22px rgba(255, 216, 115, .24)
+    }
+
+    /* 头像 img 铺满圆形容器压在首字母上；加载失败被移除后露出 fallback */
+    .winnerAvatar img,
+    .miniAvatar img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .winnerCard b {
@@ -461,9 +595,11 @@
     }
 
     .miniAvatar {
+      position: relative;
       width: 29px;
       height: 29px;
       border-radius: 50%;
+      overflow: hidden;
       display: grid;
       place-items: center;
       color: #07101b;
@@ -574,10 +710,40 @@
     <div class="main">
       <section class="stage" id="stage">
         <canvas id="canvas"></canvas>
+        <div class="excludedPanel" id="excludedPanel">
+          <h3>已中奖</h3>
+          <div class="excludedList" id="excludedList"></div>
+        </div>
         <div class="winnerOverlay" id="winnerOverlay">
           <div class="winnerBox">
             <h2>中奖名单</h2>
             <div class="winnerGrid" id="winnerGrid"></div>
+            <div class="winnerActions">
+              <button class="primary" id="confirmBtn">确认</button>
+              <button id="discardBtn">取消</button>
+            </div>
+          </div>
+        </div>
+        <div class="rulesOverlay" id="rulesOverlay">
+          <div class="rulesBox">
+            <h2>抽奖说明</h2>
+            <h3>规则</h3>
+            <ul>
+              <li>每人对应的粒子数为投点数+1；</li>
+              <li>每人最多中奖一次：中奖名单点击"确认"后，中奖者将从此后的抽奖中排除；</li>
+              <li>点击"取消"表示本轮结果无效，不记录，可重新抽取；</li>
+              <li>姓名和学号需与校园卡上一致，否则无法领奖，获奖同学需要到场才能领奖；</li>
+              <li>左侧面板为已排除人员名单，点 × 可将其恢复参与。</li>
+            </ul>
+            <h3>操作</h3>
+            <ul>
+              <li>左键拖拽：平移视角；滚轮：缩放</li>
+              <li>中键拖拽：旋转视角</li>
+              <li>顶部按钮：开始 / 暂停、重置、中奖人数与演示速度</li>
+            </ul>
+            <div class="winnerActions">
+              <button class="primary" id="rulesConfirmBtn">我知道了</button>
+            </div>
           </div>
         </div>
       </section>
@@ -625,6 +791,10 @@
       const resetBtn = document.getElementById("resetBtn");
       const overlay = document.getElementById("winnerOverlay");
       const winnerGrid = document.getElementById("winnerGrid");
+      const confirmBtn = document.getElementById("confirmBtn");
+      const discardBtn = document.getElementById("discardBtn");
+      const excludedPanel = document.getElementById("excludedPanel");
+      const excludedList = document.getElementById("excludedList");
       const rankList = document.getElementById("rankList");
       const eventsEl = document.getElementById("events");
       const progressBar = document.getElementById("progressBar");
@@ -673,9 +843,16 @@
       const PARTICLE_RADIUS_SIGMA = 0.11;
       // 物理仍在二维平面中计算；渲染时把这个平面绕 X 轴倾斜，再做透视投影。
       // 这样既不改变抽奖结果，又能让恒星和吸积盘获得稳定的前后层次。
-      const DISK_TILT = 56 * Math.PI / 180;
-      const DISK_COS = Math.cos(DISK_TILT);
-      const DISK_SIN = Math.sin(DISK_TILT);
+      // 中键拖拽可在运行时调整倾角（俯仰）并绕盘面法线自旋视角。
+      const DISK_TILT_DEFAULT = 56 * Math.PI / 180;
+      const TILT_MIN = 12 * Math.PI / 180;
+      const TILT_MAX = 86 * Math.PI / 180;
+      let diskTilt = DISK_TILT_DEFAULT;
+      let DISK_COS = Math.cos(diskTilt);
+      let DISK_SIN = Math.sin(diskTilt);
+      let diskSpin = 0;
+      let SPIN_COS = 1;
+      let SPIN_SIN = 0;
       const CAMERA_DISTANCE = 2.9;
       const DISK_THICKNESS = 0.032;
       const ZOOM_MIN = 0.4;
@@ -683,6 +860,14 @@
       const ZOOM_WHEEL_STEP = 1.12;
       let zoom = 1, panX = 0, panY = 0;
       let dragging = false, dragX = 0, dragY = 0;
+      let rotating = false, rotateX = 0, rotateY = 0;
+
+      function applyViewRotation() {
+        DISK_COS = Math.cos(diskTilt);
+        DISK_SIN = Math.sin(diskTilt);
+        SPIN_COS = Math.cos(diskSpin);
+        SPIN_SIN = Math.sin(diskSpin);
+      }
 
       document.title = `${eventName} · 抽奖程序`;
 
@@ -717,7 +902,7 @@
             const values = Array.isArray(record.investment) ? record.investment : investment;
             const value = Array.isArray(values) ? values[prizeType] : values;
             const points = Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
-            return [name, points + 1, record.avatar || null];
+            return [name, points + 1, record.avatar_url || null];
           });
 
         return entries
@@ -735,11 +920,54 @@
           : `<span class="${className}">${fallback}</span>`;
       }
 
+      const winnerStorageKey = `random-draw-winners:${eventName}`;
+
+      function getPastWinners() {
+        try {
+          const list = JSON.parse(localStorage.getItem(winnerStorageKey));
+          return Array.isArray(list) ? list : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function savePastWinners(list) {
+        try {
+          localStorage.setItem(winnerStorageKey, JSON.stringify(list));
+        } catch {}
+      }
+
+      function refreshExcludedPanel() {
+        const excluded = participants.filter(p => p.won);
+        excludedPanel.classList.toggle("show", loadState === "ready" && excluded.length > 0);
+        excludedList.innerHTML = excluded.map(p => `
+      <div class="excludedRow">
+        <span title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</span>
+        <button data-name="${escapeHtml(p.name)}" title="恢复参与">×</button>
+      </div>
+    `).join("");
+      }
+
+      excludedList.addEventListener("click", e => {
+        const btn = e.target.closest("button[data-name]");
+        if (!btn) return;
+        const name = btn.dataset.name;
+        savePastWinners(getPastWinners().filter(n => n !== name));
+        const person = participants.find(p => p.name === name);
+        if (person) person.won = false;
+        configureWinnerCount();
+        refreshExcludedPanel();
+        reset();
+      });
+
       function configureWinnerCount() {
-        const max = Math.max(1, participants.length);
+        const active = participants.filter(p => !p.won);
+        const max = Math.max(1, active.length);
         winnerInput.max = String(max);
         targetWinners = Math.min(Math.max(1, Math.floor(Number(winnerInput.value)) || 1), max);
         winnerInput.value = String(targetWinners);
+        startBtn.disabled = active.length === 0;
+        if (active.length === 0) startBtn.textContent = "所有人都已中奖";
       }
 
       async function loadParticipants() {
@@ -753,12 +981,17 @@
           participants = normalizeParticipants(response.data);
           if (!participants.length) throw new Error("EmptyParticipants");
 
+          const past = new Set(getPastWinners());
+          for (const p of participants) {
+            if (past.has(p.name)) p.won = true;
+          }
+
           loadState = "ready";
           configureWinnerCount();
           winnerInput.disabled = false;
-          startBtn.disabled = false;
           resetBtn.disabled = false;
           participantStatus.textContent = "";
+          refreshExcludedPanel();
           reset();
         } catch (error) {
           loadState = "error";
@@ -789,6 +1022,8 @@
 
       function resetCamera() {
         zoom = 1; panX = 0; panY = 0;
+        diskTilt = DISK_TILT_DEFAULT; diskSpin = 0;
+        applyViewRotation();
       }
 
       function zoomAtCursor(clientX, clientY, factor) {
@@ -802,11 +1037,13 @@
 
       function worldToScreen(x, y, z = 0) {
         const s = Math.min(W, H) * 0.44;
-        const projectedY = y * DISK_COS - z * DISK_SIN;
-        const depth = y * DISK_SIN + z * DISK_COS;
+        const xr = x * SPIN_COS - y * SPIN_SIN;
+        const yr = x * SPIN_SIN + y * SPIN_COS;
+        const projectedY = yr * DISK_COS - z * DISK_SIN;
+        const depth = yr * DISK_SIN + z * DISK_COS;
         const perspective = clamp(CAMERA_DISTANCE / (CAMERA_DISTANCE - depth), .64, 1.68);
         return [
-          W * 0.5 + x * s * perspective,
+          W * 0.5 + xr * s * perspective,
           H * 0.52 + projectedY * s * perspective,
           perspective,
           depth
@@ -853,12 +1090,13 @@
         }
 
         particles = [];
-        liveCounts = participants.map(p => p.tickets);
+        liveCounts = participants.map(p => p.won ? 0 : p.tickets);
         initialParticleCount = liveCounts.reduce((a, b) => a + b, 0);
         liveParticleCount = initialParticleCount;
-        liveParticipantCount = participants.length;
+        liveParticipantCount = participants.reduce((n, p) => n + (p.won ? 0 : 1), 0);
 
         for (const person of participants) {
+          if (person.won) continue; // 历史中奖者不参与本轮
           for (let k = 0; k < person.tickets; k++) {
             const a = rng() * Math.PI * 2;
             const r = clamp(gaussian(PARTICLE_RADIUS_MEAN, PARTICLE_RADIUS_SIGMA), 0.18, 1.12);
@@ -1123,8 +1361,8 @@
         for (let pid = 0; pid < reps.length; pid++) {
           const p = reps[pid]; if (!p) continue;
           const person = participants[pid];
-          const [x, y, perspective] = particleProjection(p);
-          drawAvatarBadge(x, y, badgeR * perspective, person, liveCounts[pid]);
+          const [x, y] = particleProjection(p);
+          drawAvatarBadge(x, y, badgeR, person, liveCounts[pid]);
         }
         ctx.restore();
 
@@ -1288,7 +1526,7 @@
       <div class="row ${p.live === 0 ? "out" : ""}" style="--ratio:${(p.live / maxLive * 100).toFixed(1)}%;--c:${p.color}">
         <div class="rank">${String(idx + 1).padStart(2, "0")}</div>
         <div class="miniAvatar">${avatarMarkup(p, "miniAvatarImage")}</div>
-        <div class="name"><b>${escapeHtml(p.name)}</b><span>${p.tickets} 点</span></div>
+        <div class="name"><b>${escapeHtml(p.name)}</b><span>${p.won ? "已中奖" : p.tickets + " 点"}</span></div>
         <div class="count"><b>${p.live}</b><span></span></div>
       </div>
     `).join("");
@@ -1334,6 +1572,36 @@
         if (running) overlay.classList.remove("show");
       });
       resetBtn.addEventListener("click", reset);
+      confirmBtn.addEventListener("click", () => {
+        const winners = participants
+          .filter(p => liveCounts[p.id] > 0)
+          .map(p => p.name);
+        savePastWinners([...getPastWinners(), ...winners]);
+        const past = new Set(getPastWinners());
+        participants.forEach(p => { if (past.has(p.name)) p.won = true; });
+        refreshExcludedPanel();
+        overlay.classList.remove("show");
+        reset();
+      });
+      discardBtn.addEventListener("click", () => {
+        overlay.classList.remove("show");
+        reset();
+      });
+
+      const rulesOverlay = document.getElementById("rulesOverlay");
+      const rulesConfirmBtn = document.getElementById("rulesConfirmBtn");
+      const rulesFlagKey = "random-draw-rules-seen";
+      let rulesSeen = false;
+      try {
+        rulesSeen = Boolean(localStorage.getItem(rulesFlagKey));
+      } catch {}
+      if (!rulesSeen) rulesOverlay.classList.add("show");
+      rulesConfirmBtn.addEventListener("click", () => {
+        try {
+          localStorage.setItem(rulesFlagKey, "1");
+        } catch {}
+        rulesOverlay.classList.remove("show");
+      });
       winnerInput.addEventListener("change", () => {
         reset();
       });
@@ -1347,15 +1615,28 @@
         zoomAtCursor(e.clientX, e.clientY, e.deltaY < 0 ? ZOOM_WHEEL_STEP : 1 / ZOOM_WHEEL_STEP);
       }, { passive: false });
       canvas.addEventListener("mousedown", e => {
+        if (e.button === 1) {
+          e.preventDefault(); // 阻止浏览器的中键自动滚动
+          rotating = true; rotateX = e.clientX; rotateY = e.clientY;
+          return;
+        }
         if (e.button !== 0) return;
         dragging = true; dragX = e.clientX; dragY = e.clientY;
       });
       window.addEventListener("mousemove", e => {
+        if (rotating) {
+          diskSpin -= (e.clientX - rotateX) * 0.008;
+          diskTilt = clamp(diskTilt - (e.clientY - rotateY) * 0.006, TILT_MIN, TILT_MAX);
+          applyViewRotation();
+          tctx.clearRect(0, 0, W, H);
+          rotateX = e.clientX; rotateY = e.clientY;
+          return;
+        }
         if (!dragging) return;
         panX += e.clientX - dragX; panY += e.clientY - dragY;
         dragX = e.clientX; dragY = e.clientY;
       });
-      window.addEventListener("mouseup", () => { dragging = false; });
+      window.addEventListener("mouseup", () => { dragging = false; rotating = false; });
 
       resize();
       requestAnimationFrame(frame);
