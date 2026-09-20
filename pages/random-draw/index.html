@@ -131,7 +131,7 @@
 
     button {
       height: 32px;
-      border-radius: 11px;
+      border-radius: 4px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, .04);
       color: var(--text);
@@ -259,6 +259,71 @@
       margin-left: 0
     }
 
+    .excludedPanel {
+      position: absolute;
+      left: 18px;
+      top: 62px;
+      z-index: 2;
+      display: none;
+      flex-direction: column;
+      min-width: 170px;
+      max-height: 42%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: rgba(5, 8, 18, .62);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      color: #cbd6e8;
+      overflow: hidden
+    }
+
+    .excludedPanel.show {
+      display: flex
+    }
+
+    .excludedPanel h3 {
+      margin: 0;
+      padding: 9px 11px 6px;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 800
+    }
+
+    .excludedList {
+      overflow-y: auto;
+      padding: 0 6px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, .16) transparent
+    }
+
+    .excludedRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 5px
+    }
+
+    .excludedRow span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .excludedRow button {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      font-size: 12px;
+      line-height: 1;
+      border: none;
+      color: var(--muted);
+      flex: none
+    }
+
     .winnerOverlay {
       position: fixed;
       inset: 0;
@@ -305,6 +370,19 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px
+    }
+
+    .winnerActions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px
+    }
+
+    .winnerActions button {
+      border-radius: 2px;
+      height: 36px;
+      min-width: 120px
     }
 
     .winnerCard {
@@ -587,10 +665,18 @@
     <div class="main">
       <section class="stage" id="stage">
         <canvas id="canvas"></canvas>
+        <div class="excludedPanel" id="excludedPanel">
+          <h3>已中奖</h3>
+          <div class="excludedList" id="excludedList"></div>
+        </div>
         <div class="winnerOverlay" id="winnerOverlay">
           <div class="winnerBox">
             <h2>中奖名单</h2>
             <div class="winnerGrid" id="winnerGrid"></div>
+            <div class="winnerActions">
+              <button class="primary" id="confirmBtn">确认</button>
+              <button id="discardBtn">取消</button>
+            </div>
           </div>
         </div>
       </section>
@@ -638,6 +724,10 @@
       const resetBtn = document.getElementById("resetBtn");
       const overlay = document.getElementById("winnerOverlay");
       const winnerGrid = document.getElementById("winnerGrid");
+      const confirmBtn = document.getElementById("confirmBtn");
+      const discardBtn = document.getElementById("discardBtn");
+      const excludedPanel = document.getElementById("excludedPanel");
+      const excludedList = document.getElementById("excludedList");
       const rankList = document.getElementById("rankList");
       const eventsEl = document.getElementById("events");
       const progressBar = document.getElementById("progressBar");
@@ -763,11 +853,54 @@
           : `<span class="${className}">${fallback}</span>`;
       }
 
+      const winnerStorageKey = `random-draw-winners:${eventName}`;
+
+      function getPastWinners() {
+        try {
+          const list = JSON.parse(localStorage.getItem(winnerStorageKey));
+          return Array.isArray(list) ? list : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function savePastWinners(list) {
+        try {
+          localStorage.setItem(winnerStorageKey, JSON.stringify(list));
+        } catch {}
+      }
+
+      function refreshExcludedPanel() {
+        const excluded = participants.filter(p => p.won);
+        excludedPanel.classList.toggle("show", loadState === "ready" && excluded.length > 0);
+        excludedList.innerHTML = excluded.map(p => `
+      <div class="excludedRow">
+        <span title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</span>
+        <button data-name="${escapeHtml(p.name)}" title="恢复参与">×</button>
+      </div>
+    `).join("");
+      }
+
+      excludedList.addEventListener("click", e => {
+        const btn = e.target.closest("button[data-name]");
+        if (!btn) return;
+        const name = btn.dataset.name;
+        savePastWinners(getPastWinners().filter(n => n !== name));
+        const person = participants.find(p => p.name === name);
+        if (person) person.won = false;
+        configureWinnerCount();
+        refreshExcludedPanel();
+        reset();
+      });
+
       function configureWinnerCount() {
-        const max = Math.max(1, participants.length);
+        const active = participants.filter(p => !p.won);
+        const max = Math.max(1, active.length);
         winnerInput.max = String(max);
         targetWinners = Math.min(Math.max(1, Math.floor(Number(winnerInput.value)) || 1), max);
         winnerInput.value = String(targetWinners);
+        startBtn.disabled = active.length === 0;
+        if (active.length === 0) startBtn.textContent = "所有人都已中奖";
       }
 
       async function loadParticipants() {
@@ -781,12 +914,17 @@
           participants = normalizeParticipants(response.data);
           if (!participants.length) throw new Error("EmptyParticipants");
 
+          const past = new Set(getPastWinners());
+          for (const p of participants) {
+            if (past.has(p.name)) p.won = true;
+          }
+
           loadState = "ready";
           configureWinnerCount();
           winnerInput.disabled = false;
-          startBtn.disabled = false;
           resetBtn.disabled = false;
           participantStatus.textContent = "";
+          refreshExcludedPanel();
           reset();
         } catch (error) {
           loadState = "error";
@@ -885,12 +1023,13 @@
         }
 
         particles = [];
-        liveCounts = participants.map(p => p.tickets);
+        liveCounts = participants.map(p => p.won ? 0 : p.tickets);
         initialParticleCount = liveCounts.reduce((a, b) => a + b, 0);
         liveParticleCount = initialParticleCount;
-        liveParticipantCount = participants.length;
+        liveParticipantCount = participants.reduce((n, p) => n + (p.won ? 0 : 1), 0);
 
         for (const person of participants) {
+          if (person.won) continue; // 历史中奖者不参与本轮
           for (let k = 0; k < person.tickets; k++) {
             const a = rng() * Math.PI * 2;
             const r = clamp(gaussian(PARTICLE_RADIUS_MEAN, PARTICLE_RADIUS_SIGMA), 0.18, 1.12);
@@ -1320,7 +1459,7 @@
       <div class="row ${p.live === 0 ? "out" : ""}" style="--ratio:${(p.live / maxLive * 100).toFixed(1)}%;--c:${p.color}">
         <div class="rank">${String(idx + 1).padStart(2, "0")}</div>
         <div class="miniAvatar">${avatarMarkup(p, "miniAvatarImage")}</div>
-        <div class="name"><b>${escapeHtml(p.name)}</b><span>${p.tickets} 点</span></div>
+        <div class="name"><b>${escapeHtml(p.name)}</b><span>${p.won ? "已中奖" : p.tickets + " 点"}</span></div>
         <div class="count"><b>${p.live}</b><span></span></div>
       </div>
     `).join("");
@@ -1366,6 +1505,21 @@
         if (running) overlay.classList.remove("show");
       });
       resetBtn.addEventListener("click", reset);
+      confirmBtn.addEventListener("click", () => {
+        const winners = participants
+          .filter(p => liveCounts[p.id] > 0)
+          .map(p => p.name);
+        savePastWinners([...getPastWinners(), ...winners]);
+        const past = new Set(getPastWinners());
+        participants.forEach(p => { if (past.has(p.name)) p.won = true; });
+        refreshExcludedPanel();
+        overlay.classList.remove("show");
+        reset();
+      });
+      discardBtn.addEventListener("click", () => {
+        overlay.classList.remove("show");
+        reset();
+      });
       winnerInput.addEventListener("change", () => {
         reset();
       });
