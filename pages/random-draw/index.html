@@ -686,9 +686,16 @@
       const PARTICLE_RADIUS_SIGMA = 0.11;
       // 物理仍在二维平面中计算；渲染时把这个平面绕 X 轴倾斜，再做透视投影。
       // 这样既不改变抽奖结果，又能让恒星和吸积盘获得稳定的前后层次。
-      const DISK_TILT = 56 * Math.PI / 180;
-      const DISK_COS = Math.cos(DISK_TILT);
-      const DISK_SIN = Math.sin(DISK_TILT);
+      // 中键拖拽可在运行时调整倾角（俯仰）并绕盘面法线自旋视角。
+      const DISK_TILT_DEFAULT = 56 * Math.PI / 180;
+      const TILT_MIN = 12 * Math.PI / 180;
+      const TILT_MAX = 86 * Math.PI / 180;
+      let diskTilt = DISK_TILT_DEFAULT;
+      let DISK_COS = Math.cos(diskTilt);
+      let DISK_SIN = Math.sin(diskTilt);
+      let diskSpin = 0;
+      let SPIN_COS = 1;
+      let SPIN_SIN = 0;
       const CAMERA_DISTANCE = 2.9;
       const DISK_THICKNESS = 0.032;
       const ZOOM_MIN = 0.4;
@@ -696,6 +703,14 @@
       const ZOOM_WHEEL_STEP = 1.12;
       let zoom = 1, panX = 0, panY = 0;
       let dragging = false, dragX = 0, dragY = 0;
+      let rotating = false, rotateX = 0, rotateY = 0;
+
+      function applyViewRotation() {
+        DISK_COS = Math.cos(diskTilt);
+        DISK_SIN = Math.sin(diskTilt);
+        SPIN_COS = Math.cos(diskSpin);
+        SPIN_SIN = Math.sin(diskSpin);
+      }
 
       document.title = `${eventName} · 抽奖程序`;
 
@@ -802,6 +817,8 @@
 
       function resetCamera() {
         zoom = 1; panX = 0; panY = 0;
+        diskTilt = DISK_TILT_DEFAULT; diskSpin = 0;
+        applyViewRotation();
       }
 
       function zoomAtCursor(clientX, clientY, factor) {
@@ -815,11 +832,13 @@
 
       function worldToScreen(x, y, z = 0) {
         const s = Math.min(W, H) * 0.44;
-        const projectedY = y * DISK_COS - z * DISK_SIN;
-        const depth = y * DISK_SIN + z * DISK_COS;
+        const xr = x * SPIN_COS - y * SPIN_SIN;
+        const yr = x * SPIN_SIN + y * SPIN_COS;
+        const projectedY = yr * DISK_COS - z * DISK_SIN;
+        const depth = yr * DISK_SIN + z * DISK_COS;
         const perspective = clamp(CAMERA_DISTANCE / (CAMERA_DISTANCE - depth), .64, 1.68);
         return [
-          W * 0.5 + x * s * perspective,
+          W * 0.5 + xr * s * perspective,
           H * 0.52 + projectedY * s * perspective,
           perspective,
           depth
@@ -1136,8 +1155,8 @@
         for (let pid = 0; pid < reps.length; pid++) {
           const p = reps[pid]; if (!p) continue;
           const person = participants[pid];
-          const [x, y, perspective] = particleProjection(p);
-          drawAvatarBadge(x, y, badgeR * perspective, person, liveCounts[pid]);
+          const [x, y] = particleProjection(p);
+          drawAvatarBadge(x, y, badgeR, person, liveCounts[pid]);
         }
         ctx.restore();
 
@@ -1360,15 +1379,28 @@
         zoomAtCursor(e.clientX, e.clientY, e.deltaY < 0 ? ZOOM_WHEEL_STEP : 1 / ZOOM_WHEEL_STEP);
       }, { passive: false });
       canvas.addEventListener("mousedown", e => {
+        if (e.button === 1) {
+          e.preventDefault(); // 阻止浏览器的中键自动滚动
+          rotating = true; rotateX = e.clientX; rotateY = e.clientY;
+          return;
+        }
         if (e.button !== 0) return;
         dragging = true; dragX = e.clientX; dragY = e.clientY;
       });
       window.addEventListener("mousemove", e => {
+        if (rotating) {
+          diskSpin -= (e.clientX - rotateX) * 0.008;
+          diskTilt = clamp(diskTilt - (e.clientY - rotateY) * 0.006, TILT_MIN, TILT_MAX);
+          applyViewRotation();
+          tctx.clearRect(0, 0, W, H);
+          rotateX = e.clientX; rotateY = e.clientY;
+          return;
+        }
         if (!dragging) return;
         panX += e.clientX - dragX; panY += e.clientY - dragY;
         dragX = e.clientX; dragY = e.clientY;
       });
-      window.addEventListener("mouseup", () => { dragging = false; });
+      window.addEventListener("mouseup", () => { dragging = false; rotating = false; });
 
       resize();
       requestAnimationFrame(frame);
