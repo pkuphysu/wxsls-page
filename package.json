@@ -27,7 +27,7 @@
     "husky": "^9.1.7",
     "tailwindcss": "^4.3.3",
     "vite": "^7.3.6",
-    "vue": "^2.7.16"
+    "vue": "^3.0.0"
   },
   "dependencies": {
     "bootstrap-vue": "^2.23.1",
