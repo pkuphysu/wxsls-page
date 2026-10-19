@@ -21,7 +21,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.6.0",
-    "eslint-plugin-svelte": "^2.46.1",
+    "eslint-plugin-svelte": "^3.23.1",
     "eslint-plugin-vue": "^10.10.0",
     "htmlhint": "^1.9.2",
     "husky": "^9.1.7",
